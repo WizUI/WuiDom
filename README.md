@@ -38,15 +38,15 @@ Below is a partial list of the existing WUI components, and what their primary f
 
 ### WUIButton
 
-You can read the WUIButton documentation [here].
+You can read the WUIButton documentation [here](https://github.com/Wizcorp/wui-button).
 
 ### WUIView
 
-You can read about the WUIView documentation [here].
+You can read about the WUIView documentation [here](https://github.com/Wizcorp/wui-view).
 
 ### WUIImage
 
-You can read more about the WUIImage documentation [here].
+You can read more about the WUIImage documentation [here](https://github.com/Wizcorp/wui-image).
 
 ### Creating a new WUIDom element
 
