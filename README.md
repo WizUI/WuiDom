@@ -266,11 +266,11 @@ The method `isVisible` is also available to know the current status of the WuiDo
 
 ##### showMethod
 Default method to show the element.
-Set to display css property to ''.
+Set the display css property to ''.
 
 ##### hideMethod
 Default method to hide the element.
-Set to display css property to 'none'.
+Set the display css property to 'none'.
 
 ##### show
 Call the `showMethod` and emit an 'show' event.
