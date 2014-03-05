@@ -26,7 +26,7 @@ module.exports = MyButton;
 ```
 
 
-### By by createElement
+### Bye bye createElement
 The method `createElement` wasn't really use because of it's redundancy with the creation of a new WuiDom.
 And since we can pass argument to the constructor of WuiDom it has no more reason to exist.
 
