@@ -1,11 +1,11 @@
 {
 	"name": "WuiDom",
 	"repo": "Wizcorp/wui-Dom",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Core Class for Wui Dom",
 	"dependencies": {
-		"component/inherit": "*",
-		"Wizcorp/eventemitter": "*"
+		"Wizcorp/util": "0.1.0",
+		"Wizcorp/events": "0.1.1"
 	},
 	"scripts": [
 		"index.js"
