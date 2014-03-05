@@ -389,7 +389,13 @@ with arguments to tell the element is a 'div' with a css class and a text.
 
 #### assign
 
-This method is **deprecated** since it's possible to assign a tag and options through the constructor.
+The assign method is called by the constructor when this one receive arguments.
+It takes an HTML tag and an object map for options.
+Valid options include className, text, attr (an object of HTML attributes, user-defined) and the option 'hidden',
+to allow the element to not be immediately displayed.
+
+Each WuiDom object represents an HTML element.
+The job of the assign method is to tell the WuiDom element which HTML element it is representing.
 
 Calling the method:
 

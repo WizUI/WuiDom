@@ -3,7 +3,6 @@
 ## v0.2.0
 
 ### Welcome to simplicity
-The assign method is now **deprecated**.
 What does it really means?
 Well, you can now pass the argument you were giving to this method to the constructor.
 ```javascript
