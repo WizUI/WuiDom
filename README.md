@@ -36,9 +36,9 @@ business logic of the game.
 
 Below is a partial list of the existing WUI components, and what their primary functions are:
 
-### WUIButton
+### WuiButton
 
-You can read the WUIButton documentation [here](https://github.com/Wizcorp/wui-button).
+You can read the WuiButton documentation [here](https://github.com/Wizcorp/wui-button).
 
 ### WuiView
 
@@ -51,8 +51,7 @@ You can read more about the WuiImage documentation [here](https://github.com/Wiz
 ### Creating a new WuiDom element
 
 There are a few ways to create a WuiDom element. The first, and easiest, way is to create a
-WuiDom element is to use the createChild method. Another way is to use createElement and then
-insert the element using one of WuiDom's insertion methods. Yet another way to create a WuiDom is
+WuiDom element is to use the createChild method. Another way to create a WuiDom is
 to use the WuiDom constructor and use the assign function, which is more useful for creating the
 first WuiDom element on a page.
 
@@ -63,18 +62,16 @@ Example:
 
 ```javascript
 var htmlElement = document.querySelector('.someClass');
-var newWuiElement = new WuiDom();
-newWuiElement.assign(htmlElement);
+var newWuiElement = new WuiDom(htmlElement);
 ```
 
 In the above example, we see how we might create a new WuiDom object on a page called examplePage.
 Please note that the page does not always need to be loaded when creating a new WuiDom element.
-If you have a sub-component, it is better to pass in a a WuiDom element,
-or to use document.createElement.
+If you have a sub-component, it is better to pass in a a WuiDom element.
 After that we create a new WuiDom element by calling the constructor.
 
 The constructor for WuiDom should not need to be called in most cases, as it is already done
-for you by WuiDom.createChild() or WuiDom.createElement(). In this case, we are calling the
+for you by WuiDom.createChild(). In this case, we are calling the
 constructor so that the new instance can be assigned directly to the existing HTML element.
 Once an initial WuiDom element exists, we should use it to create any other new WuiDom elements.
 This allows for pages to be built iteratively.
@@ -89,16 +86,15 @@ Calling the method:
 parentElement.createChild(tagName, options);
 ```
 
-The method createChild will call the function createElement to make the element you specify,
-and then immediately call appendChild to insert the element. The result is a new child element is
-immediately inserted as the last child of parentElement. Please note that this method is the
-preferred way to create new WuiDom elements.
+The method createChild will create a WuiDom object and then immediately call appendChild to insert the element.
+The result is a new child element is immediately inserted as the last child of parentElement.
+Please note that this method is the preferred way to create new WuiDom elements.
 
 The createChild method takes an HTML tag name (such as 'input', 'label', 'div' or so forth)
 and a list of associated options. WUI created an underlying rootElement (discussed at length below)
 and appends the element as the last child element of the parent (caller) element.
 
-An options element can contain numerous keys that are used by WUIDom to create the HTML element.
+An options element can contain numerous keys that are used by WuiDom to create the HTML element.
 Consider the following example:
 
 ```javascript
@@ -127,25 +123,6 @@ for even greater performance.
 
 After the underlying element is created, it is stored in the variable called 'newInputElement'.
 This allows you to perform other operations on the newly created WuiDom element.
-
-#### createElement
-
-Calling the method from a WuiView:
-
-```javascript
-var newElement = this.createElement(tagName, options);
-```
-
-This method is used to create a new WuiDom element. Unlike the createChild method, please note that
-the element 'newElement' is **not** appended to the parent element, even if it is called from a
-parent element. Therefore, the element is created but not added. Note that the WuiDom reference is
-still stored in newElement, and can be used by other functions. Events, tomes and so forth can still
-be bound to a WuiDom element even before it is attached (in fact, the event might even be programmed
-allow the WuiDom object to attach itself to a parent).
-
-Read the section below for methods for inserting an existing WuiDom element. It is best to use this
-method when you do not want to immediately insert a WuiDom element, when you want to conditionally
-insert an element or when you want to insert a child element in a custom manner.
 
 
 ### Inserting a WuiDom element
@@ -199,12 +176,12 @@ var ListElement = function(textValue) {
 
 var ulElement = pageElement.createChild('ul');
 var secondElement = ulElement.createChild(new ListElement('Item 2' ));
-var firstElement = ulElement.createElement(new ListElement('Item 1'));
+var firstElement = new WuiDom(new ListElement('Item 1'));
 firstElement.insertBefore(secondElement);
 ```
 
 In this example, we create a ul element, and two li elements. First element is defined using
-createElement and then inserted before the second element on the last line of the example.
+a new WuiDom and then inserted before the second element on the last line of the example.
 This method is mostly useful for when you need to prepend an element to a list of existing elements,
 such as a validation message notification panel.
 
@@ -345,7 +322,7 @@ the element will listen for DOM events. The correct syntax for DOM events is 'do
 Therefore the change event would be emitted as 'dom.change'.
 
 Note that by default, DOM events are **not** propagated through WUI. **This method must be
-called in order to enable DOM events on a WUIDom object.**
+called in order to enable DOM events on a WuiDom object.**
 
 ##### Example
 
@@ -383,16 +360,42 @@ even after the element has already been added to the DOM. One primary purpose of
 these operations to be performed without having to pay the cost of an inefficient DOM lookup every
 time we wish to run a command.
 
+Example 1:
+
+```javascript
+var newElement = new WuiDom('div', { className: 'box' });
+```
+Here we create a new WuiDom object which would be a div with the css class set to 'box'.
+
+
+Example 2:
+
+```javascript
+var inherit = require('inherit');
+var WuiDom = require('WuiDom');
+var buttonBehavior = require('wuiButtonBehavior');
+
+function MyButton(caption) {
+	WuiDom.call(this, 'div', { className: 'MyButton', text: caption });
+	buttonBehavior(this);
+}
+
+inherit(MyButton, WuiDom);
+module.exports = MyButton;
+```
+In this example, we define a button called MyButton. Then call the WuiDom constructor
+with arguments to tell the element is a 'div' with a css class and a text.
+
+
 #### assign
 
-The assign method takes an HTML tag and an object map for options. Valid options include text, attr
-(an object of HTML attributes, user-defined) and the option 'hidden', to allow the element to not
-be immediately displayed.
+The assign method is called by the constructor when this one receive arguments.
+It takes an HTML tag and an object map for options.
+Valid options include className, text, attr (an object of HTML attributes, user-defined) and the option 'hidden',
+to allow the element to not be immediately displayed.
 
-Internally, each WuiDom object represents an HTML element (allowing API-level access to its child
-elements and to its own properties). The job of the assign method is to tell the WuiDom element
-which HTML element it is representing. **NOTE** This method is called automatically by createElement
-and createChild.
+Each WuiDom object represents an HTML element.
+The job of the assign method is to tell the WuiDom element which HTML element it is representing.
 
 Calling the method:
 
@@ -400,35 +403,11 @@ Calling the method:
 newElement.assign(tagName, options)
 ```
 
-Example 1:
-
-```javascript
-var WUIHiddenInputElement = function (textValue) {
-    WuiDom.call(this);
-    this.assign('input', { hidden: true, attr: { type: 'hidden', value: textValue } });
-}
-inherits(WuiHiddenInputElement, WuiDom);
-module.exports = WuiHiddenInputElement;
-```
-
-Example 2:
-
-```javascript
-var newElement = this.assign(new WUIHiddenInputElement('hiddenValue'));
-```
-
-In the first example, we define a control called WUIHiddenInputElement. After calling WuiDom,
-we use assign to set the rootElement of WuiDom. The assign statement tells the element that it is
-an 'input' and that it starts out as hidden, with type hidden and a value set by the user.
-
-The second example demonstrates that we can use the assign function to change the rootElement of a
-WUIDom object to be an existing WUIDom or HTML element. The assign method can be called more than
-once on the same object, but this should be avoided for consistency's sake.
 
 #### setText
 
-The setText method is used to set the inner text of a WUIDom element. The initial text value of a
-WUIDom can also be set using the text property of the 'options' object, as described above.
+The setText method is used to set the inner text of a WuiDom element. The initial text value of a
+WuiDom can also be set using the text property of the 'options' object, as described above.
 
 Calling the method:
 
@@ -437,7 +416,7 @@ newElement.setText('someText');
 ```
 
 The setText method takes a text argument and sets the innerText property of the rootElement of the
-WUIDom element. It's important to note that this does **not** change the value of the rootElement,
+WuiDom element. It's important to note that this does **not** change the value of the rootElement,
 just the display text.
 
 **Another use of this function**
@@ -451,7 +430,7 @@ milliseconds, until the element is destroyed using '.destroy()' or this function
 
 #### getText
 
-The getText method will retrieve the current innerText property of a WUIDom element.
+The getText method will retrieve the current innerText property of a WuiDom element.
 **Note** that this value may very well be undefined if the text property has not yet been set
 
 Calling the method:
@@ -507,7 +486,7 @@ childElement.unsetStyle(property);
 #### getComputedStyle
 
 The getComputedStyle method will return the computed style (CSS style text) for a given property
-of the style element. If the property is not defined, WUIDom will return 'undefined'.
+of the style element. If the property is not defined, WuiDom will return 'undefined'.
 
 Calling the method:
 
@@ -516,7 +495,7 @@ childElement.getComputedStyle(property);
 ```
 #### getClassNames
 
-The getClassNames function will return the class names associated with the WUIDom element.
+The getClassNames function will return the class names associated with the WuiDom element.
 If there is more than one class name, the class names are returned as an Array of strings.
 If there is only one class name, then it is returned as a string.
 
@@ -557,7 +536,7 @@ childElement.addClassNames('long');
 #### hasClassName
 
 The hasClassName function takes a class name as a string, and then will check if it exists or not
-in the class names associated with the WUIDom element.
+in the class names associated with the WuiDom element.
 
 Calling the method:
 
@@ -593,7 +572,7 @@ childElement.replaceClassNames(['blue'], ['red', 'stroke']);
 The query method will allow DOM queries to be performed using the [Element.querySelector][0]
 method as a base. One **important** difference is that WUI will cache the queries by selector,
 so that repeated DOM queries are avoided. The cache will remain in place until '.destroy()' is
-called. Query returns the first element that is a descendant of the caller (WUIDom element) and
+called. Query returns the first element that is a descendant of the caller (WuiDom element) and
 matches the selector, or null.
 
 **Note** that use of this method should be avoided whenever possible, because even one DOM access
@@ -611,7 +590,7 @@ var foundElement = childElement.query(selector);
 
 #### queryAll
 
-The queryAll method functions as the query method, except it returns **all** WUIDom elements that
+The queryAll method functions as the query method, except it returns **all** WuiDom elements that
 match the specified selector. This method uses a separate cache from the query method.
 
 **Note** that use of this method should be avoided whenever possible, because even one DOM access

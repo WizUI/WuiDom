@@ -1,5 +1,5 @@
-var inherit = require('inherit');
-var EventEmitter = require('EventEmitter');
+var inherit = require('util').inherits;
+var EventEmitter = require('events').EventEmitter;
 
 var document = window.document;
 
@@ -65,12 +65,18 @@ function createHtmlElement(tagName, options) {
  * @class
  * @classDesc blah
  * @augments EventEmitter
+ * @param {String} tagName
+ * @param {Object} [options]
  */
-function WuiDom() {
+function WuiDom(tagName, options) {
 	EventEmitter.call(this);
 	this.elementIsVisible = true;
 	this.currentTextContent = null;
+	this.rootElement = null;
 	this.text = null;
+	if (tagName) {
+		this.assign(tagName, options);
+	}
 }
 
 inherit(WuiDom, EventEmitter);
@@ -85,6 +91,9 @@ module.exports = WuiDom;
  * @param {Object} [options]
  */
 WuiDom.prototype.assign = function (tagName, options) {
+	if (this.rootElement) {
+		throw new Error('WuiDom has already an element assigned');
+	}
 	if (typeof tagName === 'string') {
 		// if tagName is a real tag name, create the HTML Element with it
 
@@ -111,22 +120,6 @@ WuiDom.prototype.assign = function (tagName, options) {
 
 /**
  * Creates an instance of WuiDom and assigns a newly built HTML element to it,
- * following the logic of the private createHtmlElement function.
- * @param {String} tagName
- * @param {Object} [options]
- * @returns {WuiDom}
- */
-WuiDom.prototype.createElement = function (tagName, options) {
-	var instance = new WuiDom();
-
-	instance.assign(tagName, options);
-
-	return instance;
-};
-
-
-/**
- * Creates an instance of WuiDom and assigns a newly built HTML element to it,
  * following the logic of the private createHtmlElement function. It is then appended to
  * this component.
  * @param {String} tagName
@@ -134,11 +127,7 @@ WuiDom.prototype.createElement = function (tagName, options) {
  * @returns {WuiDom}
  */
 WuiDom.prototype.createChild = function (tagName, options) {
-	var instance = this.createElement(tagName, options);
-
-	this.appendChild(instance);
-
-	return instance;
+	return this.appendChild(new WuiDom(tagName, options));
 };
 
 /**
@@ -753,5 +742,3 @@ WuiDom.prototype.allowDomEvents = function () {
 		that.domListeners = {};
 	});
 };
-
-
