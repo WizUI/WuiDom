@@ -1,5 +1,18 @@
 # Release history
 
+## v0.2.1
+
+### Family matters
+Added a way to get access to the children with two new methods
+- `getChildren` which will return an array of WuiDom in the order they are supposed to be.
+- `getChild` take a string as argument and return the wanted WuiDom
+
+To use the latest, just need to add a name of the WuiDom when using `createChild` or `appendChild`.
+
+And because we are evil, we can now destroy the children of a WuiDom.
+Which will recursively destroy the whole family.
+
+
 ## v0.2.0
 
 ### Welcome to simplicity

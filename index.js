@@ -74,6 +74,10 @@ function WuiDom(tagName, options) {
 	this.currentTextContent = null;
 	this.rootElement = null;
 	this.text = null;
+	this._childrenList = [];
+	this._childrenMap = {};
+	this._parent = null;
+	this._name = "";
 	if (tagName) {
 		this.assign(tagName, options);
 	}
@@ -117,6 +121,60 @@ WuiDom.prototype.assign = function (tagName, options) {
 	return this.rootElement;
 };
 
+/**
+ * @param {WuiDom} child
+ * @returns {WuiDom} - oldChild
+ */
+WuiDom.prototype.removeChild = function (child) {
+	var siblingIndex = this._childrenList.indexOf(child);
+	if (siblingIndex === -1) {
+		return;
+	}
+
+	child._parent = null;
+	this.rootElement.removeChild(child.rootElement);
+
+	return this._childrenList.splice(siblingIndex, 1)[0];
+};
+
+
+/**
+ * @param {WuiDom} parent
+ * @private
+ */
+WuiDom.prototype._setParent = function (parent) {
+	if (this._parent) {
+		this._parent.removeChild(this);
+	}
+	this._parent = parent;
+};
+
+
+// override this function to implement custom appendChild behavior
+/**
+ *
+ * @param {WuiDom} newChild
+ * @param {String} [name]
+ * @returns {WuiDom}
+ */
+WuiDom.prototype.appendChild = function (newChild, name) {
+	newChild._setParent(this);
+
+	if (name) {
+		if (this._childrenMap[name]) {
+			throw new Error('WuiDom: Name already taken');
+		}
+		this._childrenMap[name] = newChild;
+	}
+
+	this._childrenList.push(newChild);
+	this.rootElement.appendChild(newChild.rootElement);
+
+	// touch events are known to get lost, so rebind them
+	newChild.rebindTouchListeners();
+	return newChild;
+};
+
 
 /**
  * Creates an instance of WuiDom and assigns a newly built HTML element to it,
@@ -124,11 +182,13 @@ WuiDom.prototype.assign = function (tagName, options) {
  * this component.
  * @param {String} tagName
  * @param {Object} [options]
+ * @param {String} [name]
  * @returns {WuiDom}
  */
-WuiDom.prototype.createChild = function (tagName, options) {
-	return this.appendChild(new WuiDom(tagName, options));
+WuiDom.prototype.createChild = function (tagName, options, name) {
+	return this.appendChild(new WuiDom(tagName, options), name);
 };
+
 
 /**
  * @param {WuiDom} newParent
@@ -138,63 +198,70 @@ WuiDom.prototype.appendTo = function (newParent) {
 };
 
 
-// override this function to implement custom appendChild behavior
 /**
  * @param {WuiDom} newChild
+ * @param {WuiDom} newNextSibling
+ * @returns {WuiDom} - newChild
  */
-WuiDom.prototype.appendChild = function (newChild) {
-	this.rootElement.appendChild(newChild.rootElement);
+WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
+	var siblingIndex = this._childrenList.indexOf(newNextSibling);
+	if (siblingIndex === -1) {
+		throw new Error('WuiDom: Wanted sibling is not a child');
+	}
+	newChild._setParent(this);
+	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
 
 	// touch events are known to get lost, so rebind them
-
 	newChild.rebindTouchListeners();
 
+	this._childrenList.splice(siblingIndex, 0, newChild);
 	return newChild;
 };
-
 
 // override this function to implement custom insertBefore behavior
 /**
  * @param {WuiDom} newNextSibling
+ * @returns {WuiDom} - newNextSibling
  */
 WuiDom.prototype.insertBefore = function (newNextSibling) {
-	newNextSibling.rootElement.parentNode.insertBefore(this.rootElement, newNextSibling.rootElement);
+
+	//newNextSibling.rootElement.parentNode.insertBefore(this.rootElement, newNextSibling.rootElement);
+	newNextSibling._parent.insertChildBefore(this, newNextSibling);
 
 	// touch events are known to get lost, so rebind them
-
 	this.rebindTouchListeners();
+
+	return newNextSibling;
 };
 
 // override this function to implement custom insertAsFirstChild behavior
 /**
  * @param {WuiDom} newChild
+ * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertAsFirstChild = function (newChild) {
-	var firstChild = this.rootElement.firstChild;
+	var firstChild = this._childrenList[0];
 
 	if (firstChild) {
-		this.rootElement.insertBefore(newChild.rootElement, firstChild);
-	} else {
-		this.rootElement.appendChild(newChild.rootElement);
+		return newChild.insertChildBefore(newChild, firstChild);
 	}
 
-	// touch events are known to get lost, so rebind them
-
-	newChild.rebindTouchListeners();
-
-	return newChild;
+	return this.appendChild(newChild);
 };
 
 /**
- * @param {WuiDom} newChild
- * @param {WuiDom} newNextSibling
+ * @returns {Array} - List of children attach to this WuiDom
  */
-WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
-	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
+WuiDom.prototype.getChildren = function () {
+	return this._childrenList.concat();
+};
 
-	// touch events are known to get lost, so rebind them
-
-	newChild.rebindTouchListeners();
+/**
+ * @param {String} childName
+ * @returns {WuiDom}
+ */
+WuiDom.prototype.getChild = function (childName) {
+	return this._childrenMap[childName];
 };
 
 
@@ -382,7 +449,7 @@ function joinArgumentsAsClassNames(base, args) {
 		str += ' ' + args[0];
 	}
 
-	for (var i = 1, len = args.length; i < len; i++) {
+	for (var i = 1, len = args.length; i < len; i += 1) {
 		str += ' ' + args[i];
 	}
 
@@ -392,14 +459,14 @@ function joinArgumentsAsClassNames(base, args) {
 
 function uniqueClassNames(str) {
 	var classNames = parseClassNames(str);
-	var uniqueClassNames = {};
+	var classNameMap = {};
 
-	for (var i = 0, len = classNames.length; i < len; i++) {
+	for (var i = 0, len = classNames.length; i < len; i += 1) {
 		var className = classNames[i];
-		uniqueClassNames[className] = null;
+		classNameMap[className] = null;
 	}
 
-	return Object.keys(uniqueClassNames).join(' ');
+	return Object.keys(classNameMap).join(' ');
 }
 
 
@@ -408,10 +475,10 @@ function removeClassNames(baseList, args) {
 	// baseList is required to be an array (not a string)
 	// args is expected to be an arguments object or array
 
-	for (var i = 0, len = args.length; i < len; i++) {
+	for (var i = 0, len = args.length; i < len; i += 1) {
 		var parsed = parseClassNames(args[i]);
 
-		for (var j = 0, jlen = parsed.length; j < jlen; j++) {
+		for (var j = 0, jlen = parsed.length; j < jlen; j += 1) {
 			var index = baseList.indexOf(parsed[j]);
 
 			if (index !== -1) {
@@ -530,6 +597,18 @@ WuiDom.prototype.queryAll = function (selector) {
 
 
 /**
+ * Destroy all children of a WuiDom
+ */
+WuiDom.prototype.destroyChildren = function () {
+	this._childrenMap = {};
+
+	var children = this.getChildren();
+	for (var i = 0, len = children.length; i < len; i += 1) {
+		children[i].destroy();
+	}
+};
+
+/**
  * Cleanup
  */
 WuiDom.prototype.destroy = function () {
@@ -539,6 +618,15 @@ WuiDom.prototype.destroy = function () {
 
 	delete this._queryCache;
 	delete this._queryAllCache;
+
+	// clean siblings
+
+	if (this._parent) {
+		this._parent.removeChild(this);
+		this._parent = null;
+	}
+
+	this.destroyChildren();
 
 	// cleanup DOM tree
 
@@ -568,6 +656,7 @@ WuiDom.prototype.destroy = function () {
 
 	this.removeAllListeners();
 };
+
 
 
 /**
@@ -645,7 +734,7 @@ WuiDom.prototype.bindToTome = function (tome, cb) {
 	if (!cb) {
 		cb = function (value) {
 			self.setText(value);
-		}
+		};
 	}
 
 	function update(was) {

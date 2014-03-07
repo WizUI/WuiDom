@@ -83,7 +83,7 @@ NOTE: To use this method, you **must** have an existing WuiDom parent element.
 Calling the method:
 
 ```javascript
-parentElement.createChild(tagName, options);
+parentElement.createChild(tagName, options, 'name');
 ```
 
 The method createChild will create a WuiDom object and then immediately call appendChild to insert the element.
@@ -96,6 +96,8 @@ and appends the element as the last child element of the parent (caller) element
 
 An options element can contain numerous keys that are used by WuiDom to create the HTML element.
 Consider the following example:
+
+The third argument represent an identifier with which it can be retrieve using `getChild`.
 
 ```javascript
 var options = { text: 'Example', className: 'exampleClass', style: { margin: '5px', display:
@@ -137,13 +139,14 @@ Calling the method:
 
 ```javascript
 var childElement = parentElement.createElement('label', { text: 'Example' });
-parentElement.appendChild(childElement);
+parentElement.appendChild(childElement, 'child');
 ```
 
 In the above code, we see that a childElement is created as a label with the text 'Example', and
 then appended to a previously existing parentElement. In the normal case, it is better to call
 parentElement.createChild(), since it will perform the appendChild automatically. However, it is
 sometimes useful to not append an element immediately after it is created.
+The newly created WuiDom element also got a named assign to retrieve it easily using `getChild`.
 
 #### appendTo
 
@@ -233,6 +236,69 @@ the parentElement. The first argument of this function specifies a new child ele
 specifies a WuiDom element that the new child Element should be inserted before.
 
 As in the previous examples, the parameters mentioned are all assumed to be WuiDom objects.
+
+
+#### getChildren
+
+Calling the method:
+
+```javascript
+    var myElements = myContainer.getChildren();
+
+    for (var i= 0, len = myElements.length; i < len; i += 1) {
+        myElements[i].addClassNames('red');
+    }
+```
+
+The method will return a copy of the children list.
+Using it can help to iterate through elements easily for specific task.
+
+
+
+#### getChild
+
+Calling the method:
+
+```javascript
+    var myTitle = myContainer.getChild('title');
+    myTitle.hide();
+```
+
+This method will return a child by its name if assign through `appendChild` or `createChild`.
+
+
+#### removeChild
+Calling the method:
+
+```javascript
+    myContainer.removeChild(myElement);
+```
+
+
+
+#### destroy
+
+Calling the method:
+
+```javascript
+    var myElement = myContainer.getChild('name');
+    myElement.destroy();
+```
+
+Calling this, the WuiDom will remove itself from its parent and destroy all its children.
+Then cleanup all event listener on itself and its rootElement (Node).
+
+
+#### destroyChildren
+
+Calling the method:
+
+```javascript
+myContainer.destroyChildren();
+```
+
+Call destroy on all teh children of the WuiDom recursively through the whole three.
+
 
 ### Display logic
 
@@ -426,7 +492,7 @@ newElement.setText(value, interval);
 ```
 
 The 'value' can also be a function, in which case the function is called repeatedly every 'interval'
-milliseconds, until the element is destroyed using '.destroy()' or this function is called again.
+milliseconds, until the element is destroyed using `destroy` or this function is called again.
 
 #### getText
 
@@ -571,7 +637,7 @@ childElement.replaceClassNames(['blue'], ['red', 'stroke']);
 
 The query method will allow DOM queries to be performed using the [Element.querySelector][0]
 method as a base. One **important** difference is that WUI will cache the queries by selector,
-so that repeated DOM queries are avoided. The cache will remain in place until '.destroy()' is
+so that repeated DOM queries are avoided. The cache will remain in place until `destroy` is
 called. Query returns the first element that is a descendant of the caller (WuiDom element) and
 matches the selector, or null.
 
