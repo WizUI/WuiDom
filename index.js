@@ -69,10 +69,10 @@ function createHtmlElement(tagName, options) {
  */
 function WuiDom(tagName, options) {
 	EventEmitter.call(this);
-	this.elementIsVisible = true;
-	this.currentTextContent = null;
+	this._elementIsVisible = true;
+	this._currentTextContent = null;
 	this.rootElement = null;
-	this.text = null;
+	this._text = null;
 	this._name = null;
 	this._childrenList = [];
 	this._childrenMap = {};
@@ -97,6 +97,7 @@ WuiDom.prototype.assign = function (tagName, options) {
 	if (this.rootElement) {
 		throw new Error('WuiDom has already an element assigned');
 	}
+	options = options || {};
 	if (typeof tagName === 'string') {
 		// if tagName is a real tag name, create the HTML Element with it
 
@@ -116,7 +117,7 @@ WuiDom.prototype.assign = function (tagName, options) {
 		this._name = options.name;
 	}
 
-	if (options && options.hidden) {
+	if (options.hidden) {
 		// start hidden
 		this.hide();
 	}
@@ -173,6 +174,9 @@ WuiDom.prototype.getParent = function () {
  * @returns {WuiDom}
  */
 WuiDom.prototype.appendChild = function (newChild) {
+	if (this._currentTextContent) {
+		console.warn('WuiDom: should not add child to a WuiDom with text content');
+	}
 	newChild._setParent(this);
 
 	this._childrenList.push(newChild);
@@ -212,6 +216,9 @@ WuiDom.prototype.appendTo = function (newParent) {
  * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
+	if (this._currentTextContent) {
+		console.warn('WuiDom: should not add child to a WuiDom with text content');
+	}
 	var siblingIndex = this._childrenList.indexOf(newNextSibling);
 	if (siblingIndex === -1) {
 		throw new Error('WuiDom: Wanted sibling is not a child');
@@ -271,7 +278,7 @@ WuiDom.prototype.getChild = function (childName) {
 
 /**
  * Timers (for internal use)
- * @param {Number} id
+ * @param {String} id
  */
 WuiDom.prototype._clearTimer = function (id) {
 	if (!this.timers) {
@@ -298,7 +305,7 @@ WuiDom.prototype.clearTimer = function (id) {
 
 /**
  * Timers (for internal use)
- * @param {Number} id
+ * @param {String} id
  * @param {Function} fn
  * @param {Number} interval
  * @private
@@ -319,9 +326,9 @@ WuiDom.prototype._setTimer = function (id, fn, interval) {
 
 /**
  * @deprecated
- * @param {Number} id
- * @param {Function} fn
- * @param {Number} interval
+ * @param id
+ * @param fn
+ * @param interval
  */
 WuiDom.prototype.setTimer = function (id, fn, interval) {
 	console.warn("setTimer is deprecated");
@@ -338,7 +345,9 @@ WuiDom.prototype.setTimer = function (id, fn, interval) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setHtml = function (value, interval) {
-
+	if (this._childrenList.length) {
+		console.warn('WuiDom: should not set html when WuiDom is used as container');
+	}
 	if (typeof value === 'function') {
 		var fn = value;
 		value = fn();
@@ -353,8 +362,8 @@ WuiDom.prototype.setHtml = function (value, interval) {
 	} else {
 		this._clearTimer('content');
 	}
-
 	this.rootElement.innerHTML = value;
+	this._currentTextContent = value;
 };
 
 /**
@@ -368,6 +377,9 @@ WuiDom.prototype.setHtml = function (value, interval) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setText = function (value, interval) {
+	if (this._childrenList.length) {
+		console.warn('WuiDom: should not set html when WuiDom is used as container');
+	}
 	if (value === null || value === undefined) {
 		return;
 	}
@@ -389,14 +401,14 @@ WuiDom.prototype.setText = function (value, interval) {
 		this._clearTimer('content');
 	}
 
-	if (this.currentTextContent === null) {
-		this.text = document.createTextNode("");
-		this.rootElement.appendChild(this.text);
+	if (this._currentTextContent === null) {
+		this._text = document.createTextNode("");
+		this.rootElement.appendChild(this._text);
 	}
 
-	if (value !== this.currentTextContent) {
-		this.currentTextContent = value;
-		this.text.nodeValue = value;
+	if (value !== this._currentTextContent) {
+		this._currentTextContent = value;
+		this._text.nodeValue = value;
 	}
 };
 
@@ -404,7 +416,7 @@ WuiDom.prototype.setText = function (value, interval) {
  * @returns {String}
  */
 WuiDom.prototype.getText = function () {
-	return this.currentTextContent;
+	return this._currentTextContent;
 };
 
 
@@ -622,17 +634,30 @@ WuiDom.prototype.queryAll = function (selector) {
 
 /**
  * Destroy all children of a WuiDom
+ * @private
  */
-WuiDom.prototype.destroyChildren = function () {
+WuiDom.prototype._destroyChildren = function () {
 	var children = this._childrenList.concat();
 	for (var i = 0, len = children.length; i < len; i += 1) {
 		children[i].destroy();
 	}
 };
 
+/**
+ * Clear any actual content of the WuiDom
+ * Emitting 'cleared' so extra cleanup can be done
+ */
+WuiDom.prototype.clearContent = function () {
+	this._currentTextContent = null;
+	this._text = null;
+	this._destroyChildren();
+	this.rootElement.innerHTML = "";
+	this.emit('cleared');
+};
+
 
 /**
- * Cleanup
+ * Removing the domElement and
  */
 WuiDom.prototype.destroy = function () {
 	this.emit('destroy');
@@ -649,7 +674,7 @@ WuiDom.prototype.destroy = function () {
 		this._parent = null;
 	}
 
-	this.destroyChildren();
+	this._destroyChildren();
 
 	// cleanup DOM tree
 
@@ -701,7 +726,7 @@ WuiDom.prototype.hideMethod = function () {
  */
 WuiDom.prototype.show = function (data) {
 	this.emit('show', data);
-	this.elementIsVisible = true;
+	this._elementIsVisible = true;
 	this.showMethod();
 };
 
@@ -710,7 +735,7 @@ WuiDom.prototype.show = function (data) {
  */
 WuiDom.prototype.hide = function (data) {
 	this.emit('hide', data);
-	this.elementIsVisible = false;
+	this._elementIsVisible = false;
 	this.hideMethod();
 };
 
@@ -718,7 +743,7 @@ WuiDom.prototype.hide = function (data) {
  * @returns {Boolean}
  */
 WuiDom.prototype.isVisible = function () {
-	return this.elementIsVisible;
+	return this._elementIsVisible;
 };
 
 

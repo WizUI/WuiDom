@@ -9,7 +9,8 @@ Added a way to get access to the children with two new methods
 
 To use the latest, just need to add a name of the WuiDom when using `createChild` or `appendChild`.
 
-And because we are evil, we can now destroy WuiDom, which recursively destroys all its children along with it.
+And because we are evil, we can now clear the content of a WuiDom, which will empty the text or html of this one,
+and recursively destroys all its children along with it.
 
 
 ## v0.2.0

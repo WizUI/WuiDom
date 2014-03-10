@@ -289,15 +289,16 @@ Calling this, the WuiDom will remove itself from its parent and destroy all its 
 Then cleanup all event listener on itself and its rootElement (Node).
 
 
-#### destroyChildren
+#### clearContent
 
 Calling the method:
 
 ```javascript
-myContainer.destroyChildren();
+myContainer.clearContent();
 ```
 
-Call destroy on all teh children of the WuiDom recursively through the whole three.
+Call destroy on all the children of the WuiDom recursively through the whole three.
+Also empty the current text or html if any.
 
 
 ### Display logic
