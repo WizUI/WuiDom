@@ -83,7 +83,7 @@ NOTE: To use this method, you **must** have an existing WuiDom parent element.
 Calling the method:
 
 ```javascript
-parentElement.createChild(tagName, options, 'name');
+parentElement.createChild(tagName, { name: 'myElement' });
 ```
 
 The method createChild will create a WuiDom object and then immediately call appendChild to insert the element.
@@ -97,7 +97,7 @@ and appends the element as the last child element of the parent (caller) element
 An options element can contain numerous keys that are used by WuiDom to create the HTML element.
 Consider the following example:
 
-The third argument represent an identifier with which it can be retrieve using `getChild`.
+The option `name` represent an identifier with which it can be retrieve using `getChild`.
 
 ```javascript
 var options = { text: 'Example', className: 'exampleClass', style: { margin: '5px', display:
@@ -154,13 +154,13 @@ Calling the method:
 
 ```javascript
 if (someValue >= 5) {
-    var childElement = parentElement.createElement('label', { text: 'Example' });
+    var childElement = new WuiDom('label', { text: 'Example' });
     childElement.appendTo(parentElement); // Equivalent to parentElement.appendChild(childElement);
 }
 ```
 
 In the above example code, if the value of someValue is greater than or equal to 5, a child
-element is created using createElement, and then appended to a previously existing parentElement.
+element is created, and then appended to a previously existing parentElement.
 One of the main advantages of appendTo and appendChild, is that elements can be conditionally or
 dynamically added based on programmatic logic. This is useful for views that will change depending
 on program execution or external factors.
@@ -264,7 +264,7 @@ Calling the method:
     myTitle.hide();
 ```
 
-This method will return a child by its name if assign through `appendChild` or `createChild`.
+This method will return a child by its name if assigned.
 
 
 #### removeChild
