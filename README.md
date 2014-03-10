@@ -246,7 +246,7 @@ Calling the method:
     var myElements = myContainer.getChildren();
 
     for (var i= 0, len = myElements.length; i < len; i += 1) {
-        myElements[i].addClassNames('red');
+        myElements[i].addClassNames('read');
     }
 ```
 
@@ -582,7 +582,7 @@ The method takes one or multiple strings and overwrites the current classes
 Calling the function:
 
 ```javascript
-childElement.setClassNames('big', 'blue');
+childElement.setClassNames('big', 'unread');
 ```
 
 **Note** that the old class names will be overwritten by this call.
@@ -630,7 +630,7 @@ adding an array of classNames and then deleting others. Either parameter can be 
 Calling the method:
 
 ```javascript
-childElement.replaceClassNames(['blue'], ['red', 'stroke']);
+childElement.replaceClassNames(['unread'], ['read', 'stroke']);
 ```
 
 #### query

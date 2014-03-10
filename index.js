@@ -77,7 +77,6 @@ function WuiDom(tagName, options) {
 	this._childrenList = [];
 	this._childrenMap = {};
 	this._parent = null;
-	this._name = "";
 	if (tagName) {
 		this.assign(tagName, options);
 	}
