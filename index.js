@@ -131,10 +131,13 @@ WuiDom.prototype.assign = function (tagName, options) {
 };
 
 /**
- * @param {WuiDom} child
+ * @param {WuiDom|String} child
  * @returns {WuiDom} - oldChild
  */
 WuiDom.prototype.removeChild = function (child) {
+	if (typeof child === 'string') {
+		child = this.getChild(child);
+	}
 	var siblingIndex = this._childrenList.indexOf(child);
 	if (siblingIndex === -1) {
 		return child;

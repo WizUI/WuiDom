@@ -271,9 +271,15 @@ This method will return a child by its name if assigned.
 Calling the method:
 
 ```javascript
-    myContainer.removeChild(myElement);
+    var oldChild = myContainer.removeChild(myTitle);
+```
+or
+```javascript
+    var oldChild = myContainer.removeChild('title');
 ```
 
+It's possible to remove a child by using the object itself or its name if any;
+It will return the WuiDom child itself.
 
 
 #### destroy
