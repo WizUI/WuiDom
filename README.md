@@ -67,7 +67,7 @@ var newWuiElement = new WuiDom(htmlElement);
 
 In the above example, we see how we might create a new WuiDom object on a page called examplePage.
 Please note that the page does not always need to be loaded when creating a new WuiDom element.
-If you have a sub-component, it is better to pass in a a WuiDom element.
+If you have a sub-component, it is better to pass in a WuiDom element.
 After that we create a new WuiDom element by calling the constructor.
 
 The constructor for WuiDom should not need to be called in most cases, as it is already done
