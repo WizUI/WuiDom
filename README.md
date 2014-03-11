@@ -264,7 +264,7 @@ Calling the method:
     myTitle.hide();
 ```
 
-This method will return a child by its name if assigned.
+This method will return a child by its name if assigned, or `undefined` if no.
 
 
 #### removeChild
