@@ -220,17 +220,25 @@ WuiDom.prototype.appendTo = function (newParent) {
 
 /**
  * @param {WuiDom} newChild
- * @param {WuiDom} newNextSibling
+ * @param {WuiDom} [newNextSibling]
  * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	if (this._currentTextContent) {
 		console.warn('WuiDom: should not add child to a WuiDom with text content');
 	}
-	var siblingIndex = this._childrenList.indexOf(newNextSibling);
+	var siblingIndex = 0;
+
+	if (!newNextSibling) {
+		siblingIndex = this._childrenList.length;
+	} else {
+		siblingIndex = this._childrenList.indexOf(newNextSibling);
+	}
+
 	if (siblingIndex === -1) {
 		throw new Error('WuiDom: Wanted sibling is not a child');
 	}
+
 	newChild._setParent(this);
 	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
 
@@ -240,6 +248,7 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	this._childrenList.splice(siblingIndex, 0, newChild);
 	return newChild;
 };
+
 
 // override this function to implement custom insertBefore behavior
 /**
