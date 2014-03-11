@@ -383,7 +383,6 @@ WuiDom.prototype.setHtml = function (value, interval) {
 		this._clearTimer('content');
 	}
 	this.rootElement.innerHTML = value;
-	this._currentTextContent = value;
 };
 
 /**
