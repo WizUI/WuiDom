@@ -256,7 +256,9 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
  * @returns {WuiDom} - newNextSibling
  */
 WuiDom.prototype.insertBefore = function (newNextSibling) {
-
+	if (!newNextSibling._parent) {
+		throw new Error('WuiDom: sibling has no parent');
+	}
 	newNextSibling._parent.insertChildBefore(this, newNextSibling);
 
 	return newNextSibling;
