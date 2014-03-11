@@ -141,9 +141,9 @@ parentElement.appendChild(childElement);
 ```
 
 In the above code, we see that a childElement is created as a label with the text 'Example', and
-then appended to a previously existing parentElement. In the normal case, it is better to call
-parentElement.createChild(), since it will perform the appendChild automatically. However, it is
-sometimes useful to not append an element immediately after it is created.
+then appended to a previously existing parentElement. Usually it is better to call
+parentElement.createChild(), since it will perform the appendChild automatically. It is
+sometimes however, useful not to append an element immediately after it is created.
 
 #### appendTo
 
@@ -180,7 +180,7 @@ var firstElement = new WuiDom(new ListElement('Item 1'));
 firstElement.insertBefore(secondElement);
 ```
 
-In this example, we create a ul element, and two li elements. First element is defined using
+In this example, we create a ul element, and two li elements. The first element is defined using
 a new WuiDom and then inserted before the second element on the last line of the example.
 This method is mostly useful for when you need to prepend an element to a list of existing elements,
 such as a validation message notification panel.
@@ -237,26 +237,26 @@ As in the previous examples, the parameters mentioned are all assumed to be WuiD
 ### Display logic
 
 WuiDom display can be easily manipulated.
-It has a default implementation of a show and hide method that can be overwritten.
-Those methods will be called when `show` and `hide` will be used and will emit an event corresponding.
+It has default method implementations of show and hide that can be overridden‎.
+These methods will be called when `show` or `hide` is used and will emit a corresponding event.
 The method `isVisible` is also available to know the current status of the WuiDom, but does not depend on its parent.
 
 ##### showMethod
 Default method to show the element.
-Set the display css property to ''.
+Sets the display css property to ''.
 
 ##### hideMethod
 Default method to hide the element.
-Set the display css property to 'none'.
+Sets the display css property to 'none'.
 
 ##### show
-Call the `showMethod` and emit an 'show' event.
+Calls the `showMethod` and emits a 'show' event.
 
 ##### hide
-Call the `hideMethod` and emit an 'hide' event.
+Calls the `hideMethod` and emits a 'hide' event.
 
 ##### isVisible
-return the current status of visibility of the wuiDom object
+Returns the current visibility status of the wuiDom object.
 
 ##### Examples
 
