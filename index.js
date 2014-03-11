@@ -1,3 +1,7 @@
+/**
+ * @module WuiDom
+ */
+
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 
@@ -62,7 +66,8 @@ function createHtmlElement(tagName, options) {
 
 
 /**
- * @class
+ * @constructor
+ * @alias module:WuiDom
  * @augments EventEmitter
  * @param {String} tagName
  * @param {Object} [options]
@@ -147,17 +152,17 @@ WuiDom.prototype.removeChild = function (child) {
  * @private
  */
 WuiDom.prototype._setParent = function (parent) {
+	if (this._name) {
+		if (parent._childrenMap[this._name]) {
+			throw new Error('WuiDom: Parent already has a child with this name');
+		}
+		parent._childrenMap[this._name] = this;
+	}
+
 	if (this._parent) {
 		this._parent.removeChild(this);
 	}
 	this._parent = parent;
-
-	if (this._name) {
-		if (this._parent._childrenMap[this._name]) {
-			throw new Error('WuiDom: Parent already have a child with this name');
-		}
-		this._parent._childrenMap[this._name] = this;
-	}
 };
 
 /**
