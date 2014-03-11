@@ -138,8 +138,8 @@ creating new WuiDom elements, please read above.
 Calling the method:
 
 ```javascript
-var childElement = parentElement.createElement('label', { text: 'Example' });
-parentElement.appendChild(childElement, 'child');
+var childElement = new WuiDom('label', { name: 'child', text: 'Example' });
+parentElement.appendChild(childElement);
 ```
 
 In the above code, we see that a childElement is created as a label with the text 'Example', and
