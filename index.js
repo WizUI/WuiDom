@@ -183,7 +183,7 @@ WuiDom.prototype.getParent = function () {
  */
 WuiDom.prototype.appendChild = function (newChild) {
 	if (this._currentTextContent) {
-		console.warn('WuiDom: should not add child to a WuiDom with text content');
+		this._clearLinearContent();
 	}
 	newChild._setParent(this);
 
@@ -225,7 +225,7 @@ WuiDom.prototype.appendTo = function (newParent) {
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	if (this._currentTextContent) {
-		console.warn('WuiDom: should not add child to a WuiDom with text content');
+		this._clearLinearContent();
 	}
 	var siblingIndex = 0;
 
@@ -298,6 +298,7 @@ WuiDom.prototype.getChild = function (childName) {
 /**
  * Timers (for internal use)
  * @param {String} id
+ * @private
  */
 WuiDom.prototype._clearTimer = function (id) {
 	if (!this.timers) {
@@ -365,7 +366,7 @@ WuiDom.prototype.setTimer = function (id, fn, interval) {
  */
 WuiDom.prototype.setHtml = function (value, interval) {
 	if (this._childrenList.length) {
-		console.warn('WuiDom: should not set html when WuiDom is used as container');
+		this.clearContent();
 	}
 	if (typeof value === 'function') {
 		var fn = value;
@@ -386,6 +387,17 @@ WuiDom.prototype.setHtml = function (value, interval) {
 };
 
 /**
+ * Clean text or html content
+ * @private
+ */
+WuiDom.prototype._clearLinearContent = function () {
+	this._clearTimer('content');
+	this._text = null;
+	this._currentTextContent = null;
+	this.rootElement.innerHTML = "";
+};
+
+/**
  * - if value is a function, execute it and use the return value as text
  * - if an interval is given, repeat the given function every N msec until setText is called again, or the component is destroyed
  * - if value is not a function, use its string representation as text
@@ -397,7 +409,7 @@ WuiDom.prototype.setHtml = function (value, interval) {
  */
 WuiDom.prototype.setText = function (value, interval) {
 	if (this._childrenList.length) {
-		console.warn('WuiDom: should not set html when WuiDom is used as container');
+		this.clearContent();
 	}
 	if (value === null || value === undefined) {
 		return;
@@ -420,7 +432,7 @@ WuiDom.prototype.setText = function (value, interval) {
 		this._clearTimer('content');
 	}
 
-	if (this._currentTextContent === null) {
+	if (!this._text) {
 		this._text = document.createTextNode("");
 		this.rootElement.appendChild(this._text);
 	}
@@ -666,10 +678,8 @@ WuiDom.prototype._destroyChildren = function () {
  * Emitting 'cleared' so extra cleanup can be done
  */
 WuiDom.prototype.clearContent = function () {
-	this._currentTextContent = null;
-	this._text = null;
 	this._destroyChildren();
-	this.rootElement.innerHTML = "";
+	this._clearLinearContent();
 	this.emit('cleared');
 };
 
