@@ -171,7 +171,7 @@ Calling the method:
 ```javascript
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', { text: textValue});
+    this.assign('li', {text: textValue});
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -195,7 +195,7 @@ Calling the method:
 ```javascript
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', { text: textValue});
+    this.assign('li', {text: textValue});
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -220,8 +220,8 @@ parentElement.insertChildBefore(newChildElement, elementToInsertBefore);
 
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', { text: textValue});
-}
+    this.assign('li', {text: textValue});
+};
 var ulElement = pageElement.createChild('ul');
 ulElement.createChild(new ListElement('First child'));
 var thirdChild = ulElement.createChild(new ListElement('Third child'));
@@ -285,10 +285,10 @@ The code below demonstrates how the contents of a Tome might be bound to a WuiDo
 ```javascript
 var questDisplay = pageElement.createChild('div');
 questDisplay.bindToTome(tomeObject, function () {
-questDisplay.setHtml('');
+    questDisplay.setHtml('');
 
-for (var quest in tomeObject) {
-    if (tomeObject.hasOwnProperty(quest)) {
+    for (var quest in tomeObject) {
+        if (tomeObject.hasOwnProperty(quest)) {
             var questLineInput = questDisplay.createChild('input', { type: 'checkbox',
             disabled: 'disabled', checked: quest.isComplete ? 'checked' : ''});
             questLineInput.setText(quest.title);
