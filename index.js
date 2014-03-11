@@ -507,8 +507,7 @@ function uniqueClassNames(str) {
 	var classNameMap = {};
 
 	for (var i = 0, len = classNames.length; i < len; i += 1) {
-		var className = classNames[i];
-		classNameMap[className] = null;
+		classNameMap[classNames[i]] = null;
 	}
 
 	return Object.keys(classNameMap).join(' ');
