@@ -171,7 +171,7 @@ Calling the method:
 ```javascript
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', {text: textValue});
+    this.assign('li', { text: textValue });
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -195,7 +195,7 @@ Calling the method:
 ```javascript
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', {text: textValue});
+    this.assign('li', { text: textValue });
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -220,7 +220,7 @@ parentElement.insertChildBefore(newChildElement, elementToInsertBefore);
 
 var ListElement = function(textValue) {
     WuiDom.call(this);
-    this.assign('li', {text: textValue});
+    this.assign('li', { text: textValue });
 };
 var ulElement = pageElement.createChild('ul');
 ulElement.createChild(new ListElement('First child'));
