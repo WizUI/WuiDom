@@ -102,7 +102,7 @@ WuiDom.prototype.assign = function (tagName, options) {
 	if (this.rootElement) {
 		throw new Error('WuiDom has already an element assigned');
 	}
-	options = options || {};
+
 	if (typeof tagName === 'string') {
 		// if tagName is a real tag name, create the HTML Element with it
 
@@ -118,11 +118,11 @@ WuiDom.prototype.assign = function (tagName, options) {
 		throw new Error('WuiDom.assign requires the given argument to be a DOM Element or tagName.');
 	}
 
-	if (options.name) {
+	if (options && options.name) {
 		this._name = options.name;
 	}
 
-	if (options.hidden) {
+	if (options && options.hidden) {
 		// start hidden
 		this.hide();
 	}
@@ -143,18 +143,32 @@ WuiDom.prototype.removeChild = function (child) {
 		return child;
 	}
 
-	child._parent = null;
 	this.rootElement.removeChild(child.rootElement);
+	this._childrenList.splice(siblingIndex, 1);
 	delete this._childrenMap[child._name];
-	return this._childrenList.splice(siblingIndex, 1)[0];
+	child._parent = null;
+	return child;
 };
 
+/**
+ * @private
+ */
+WuiDom.prototype._unsetParent = function () {
+	if (this._parent) {
+		this._parent.removeChild(this);
+	}
+};
 
 /**
  * @param {WuiDom} parent
  * @private
  */
 WuiDom.prototype._setParent = function (parent) {
+	if (parent === this._parent) {
+		// Already set, nothing to do
+		return;
+	}
+
 	if (this._name) {
 		if (parent._childrenMap[this._name]) {
 			throw new Error('WuiDom: Parent already has a child with this name');
@@ -162,11 +176,9 @@ WuiDom.prototype._setParent = function (parent) {
 		parent._childrenMap[this._name] = this;
 	}
 
-	if (this._parent) {
-		this._parent.removeChild(this);
-	}
 	this._parent = parent;
 };
+
 
 /**
  * @returns {WuiDom|null}
@@ -185,7 +197,17 @@ WuiDom.prototype.appendChild = function (newChild) {
 	if (this._currentTextContent) {
 		this._clearLinearContent();
 	}
-	newChild._setParent(this);
+
+	if (this === newChild._parent) {
+		var siblingIndex = this._childrenList.indexOf(newChild);
+		if (siblingIndex !== -1) {
+			this.rootElement.removeChild(newChild.rootElement);
+			this._childrenList.splice(siblingIndex, 1);
+		}
+	} else {
+		newChild._unsetParent();
+		newChild._setParent(this);
+	}
 
 	this._childrenList.push(newChild);
 	this.rootElement.appendChild(newChild.rootElement);
@@ -229,14 +251,15 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	}
 	var siblingIndex = 0;
 
+	newChild._unsetParent();
+
 	if (!newNextSibling) {
 		siblingIndex = this._childrenList.length;
 	} else {
 		siblingIndex = this._childrenList.indexOf(newNextSibling);
-	}
-
-	if (siblingIndex === -1) {
-		throw new Error('WuiDom: Wanted sibling is not a child');
+		if (siblingIndex === -1) {
+			throw new Error('WuiDom: Wanted sibling is not a child');
+		}
 	}
 
 	newChild._setParent(this);
@@ -280,7 +303,7 @@ WuiDom.prototype.insertAsFirstChild = function (newChild) {
 };
 
 /**
- * @returns {Array} - List of children attach to this WuiDom
+ * @returns {Array} - List of children attached to this WuiDom
  */
 WuiDom.prototype.getChildren = function () {
 	return this._childrenList.concat();
@@ -696,11 +719,7 @@ WuiDom.prototype.destroy = function () {
 
 	// clean siblings
 
-	if (this._parent) {
-		this._parent.removeChild(this);
-		this._parent = null;
-	}
-
+	this._unsetParent();
 	this._destroyChildren();
 
 	// cleanup DOM tree
