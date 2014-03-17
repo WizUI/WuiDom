@@ -145,7 +145,9 @@ WuiDom.prototype.removeChild = function (child) {
 
 	this.rootElement.removeChild(child.rootElement);
 	this._childrenList.splice(siblingIndex, 1);
-	delete this._childrenMap[child._name];
+	if (this._childrenMap.hasOwnProperty(child._name)) {
+		delete this._childrenMap[child._name];
+	}
 	child._parent = null;
 	return child;
 };
@@ -201,7 +203,6 @@ WuiDom.prototype.appendChild = function (newChild) {
 	if (this === newChild._parent) {
 		var siblingIndex = this._childrenList.indexOf(newChild);
 		if (siblingIndex !== -1) {
-			this.rootElement.removeChild(newChild.rootElement);
 			this._childrenList.splice(siblingIndex, 1);
 		}
 	} else {
@@ -224,7 +225,6 @@ WuiDom.prototype.appendChild = function (newChild) {
  * this component.
  * @param {String} tagName
  * @param {Object} [options]
- * @param {String} [name]
  * @returns {WuiDom}
  */
 WuiDom.prototype.createChild = function (tagName, options) {
@@ -249,9 +249,16 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	if (this._currentTextContent) {
 		this._clearLinearContent();
 	}
-	var siblingIndex = 0;
+	var siblingIndex;
 
-	newChild._unsetParent();
+	if (this === newChild._parent) {
+		var childIndex = this._childrenList.indexOf(newChild);
+		if (childIndex !== -1) {
+			this._childrenList.splice(childIndex, 1);
+		}
+	} else {
+		newChild._unsetParent();
+	}
 
 	if (!newNextSibling) {
 		siblingIndex = this._childrenList.length;
@@ -296,14 +303,14 @@ WuiDom.prototype.insertAsFirstChild = function (newChild) {
 	var firstChild = this._childrenList[0];
 
 	if (firstChild) {
-		return newChild.insertChildBefore(newChild, firstChild);
+		return this.insertChildBefore(newChild, firstChild);
 	}
 
 	return this.appendChild(newChild);
 };
 
 /**
- * @returns {Array} - List of children attached to this WuiDom
+ * @returns {WuiDom[]} - List of children attached to this WuiDom
  */
 WuiDom.prototype.getChildren = function () {
 	return this._childrenList.concat();
@@ -388,9 +395,8 @@ WuiDom.prototype.setTimer = function (id, fn, interval) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setHtml = function (value, interval) {
-	if (this._childrenList.length) {
-		this.clearContent();
-	}
+	this.clearContent();
+
 	if (typeof value === 'function') {
 		var fn = value;
 		value = fn();
@@ -430,7 +436,7 @@ WuiDom.prototype._clearLinearContent = function () {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setText = function (value, interval) {
-	if (this._childrenList.length) {
+	if (!this._text) {
 		this.clearContent();
 	}
 	if (value === null || value === undefined) {

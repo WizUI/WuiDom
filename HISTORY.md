@@ -1,6 +1,6 @@
 # Release history
 
-## v0.2.1
+## v0.3.0
 
 ### Family matters
 Added a way to get access to the children with two new methods

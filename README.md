@@ -264,14 +264,14 @@ Calling the method:
     myTitle.hide();
 ```
 
-This method will return a child by its name if assigned, or `undefined` if no.
+This method will return a child by its name if assigned, or `undefined` if not.
 
 
 #### removeChild
 Calling the method:
 
 ```javascript
-    var oldChild = myContainer.removeChild(myTitle);
+    var oldChild = myContainer.removeChild(titleBoxElement);
 ```
 or
 ```javascript
@@ -303,8 +303,8 @@ Calling the method:
 myContainer.clearContent();
 ```
 
-Call destroy on all the children of the WuiDom recursively through the whole three.
-Also empty the current text or html if any.
+Calls destroy on all the children of the WuiDom recursively through the whole three.
+Also empties the current text or html if any.
 
 
 ### Display logic
