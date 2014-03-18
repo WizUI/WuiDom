@@ -196,7 +196,7 @@ WuiDom.prototype.getParent = function () {
  * @returns {WuiDom}
  */
 WuiDom.prototype.appendChild = function (newChild) {
-	if (this._currentTextContent) {
+	if (this._childrenList.length === 0) {
 		this._clearLinearContent();
 	}
 
@@ -246,7 +246,7 @@ WuiDom.prototype.appendTo = function (newParent) {
  * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
-	if (this._currentTextContent) {
+	if (this._childrenList.length === 0) {
 		this._clearLinearContent();
 	}
 	var siblingIndex;
