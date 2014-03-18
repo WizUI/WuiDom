@@ -140,7 +140,7 @@ WuiDom.prototype.removeChild = function (child) {
 	}
 	var siblingIndex = this._childrenList.indexOf(child);
 	if (siblingIndex === -1) {
-		return child;
+		throw new Error('WuiDom: Not a current child');
 	}
 
 	this.rootElement.removeChild(child.rootElement);
