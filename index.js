@@ -135,9 +135,12 @@ WuiDom.prototype.assign = function (tagName, options) {
  * @returns {WuiDom} - oldChild
  */
 WuiDom.prototype.removeChild = function (child) {
-	if (typeof child === 'string') {
-		child = this.getChild(child);
+	if (typeof child === 'string' && this._childrenMap[child]) {
+		child = this._childrenMap[child];
+	} else if (typeof child === 'string') {
+		throw new Error('WuiDom: Given name is not a current child');
 	}
+
 	var siblingIndex = this._childrenList.indexOf(child);
 	if (siblingIndex === -1) {
 		throw new Error('WuiDom: Not a current child');
