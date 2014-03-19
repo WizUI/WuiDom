@@ -5,6 +5,12 @@
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 
+var cType = {
+	EMPTY: null,
+	WUI: 'wui',
+	CUSTOM: 'custom'
+};
+
 var document = window.document;
 
 // non-touch enabled browser workarounds
@@ -81,6 +87,7 @@ function WuiDom(tagName, options) {
 	this._name = null;
 	this._childrenList = [];
 	this._childrenMap = {};
+	this._contentType = cType.EMPTY;
 	this._parent = null;
 	if (tagName) {
 		this.assign(tagName, options);
@@ -199,7 +206,7 @@ WuiDom.prototype.getParent = function () {
  * @returns {WuiDom}
  */
 WuiDom.prototype.appendChild = function (newChild) {
-	if (this._childrenList.length === 0) {
+	if (this._contentType === cType.CUSTOM) {
 		this._clearLinearContent();
 	}
 
@@ -218,6 +225,7 @@ WuiDom.prototype.appendChild = function (newChild) {
 
 	// touch events are known to get lost, so rebind them
 	newChild.rebindTouchListeners();
+	this._contentType = cType.WUI;
 	return newChild;
 };
 
@@ -249,9 +257,10 @@ WuiDom.prototype.appendTo = function (newParent) {
  * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
-	if (this._childrenList.length === 0) {
+	if (this._contentType === cType.CUSTOM) {
 		this._clearLinearContent();
 	}
+
 	var siblingIndex;
 
 	if (this === newChild._parent) {
@@ -279,6 +288,7 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	newChild.rebindTouchListeners();
 
 	this._childrenList.splice(siblingIndex, 0, newChild);
+	this._contentType = cType.WUI;
 	return newChild;
 };
 
@@ -398,7 +408,15 @@ WuiDom.prototype.setTimer = function (id, fn, interval) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setHtml = function (value, interval) {
-	this.clearContent();
+	// Clean if contain children
+	if (this._contentType === cType.WUI) {
+		this._destroyChildren();
+	}
+
+	// Clean if contain text
+	if (this._contentType && this._text) {
+		this._clearLinearContent();
+	}
 
 	if (typeof value === 'function') {
 		var fn = value;
@@ -415,6 +433,7 @@ WuiDom.prototype.setHtml = function (value, interval) {
 		this._clearTimer('content');
 	}
 	this.rootElement.innerHTML = value;
+	this._contentType = cType.CUSTOM;
 };
 
 /**
@@ -439,9 +458,16 @@ WuiDom.prototype._clearLinearContent = function () {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setText = function (value, interval) {
-	if (!this._text) {
-		this.clearContent();
+	// Clean if contain children
+	if (this._contentType === cType.WUI) {
+		this._destroyChildren();
 	}
+
+	// Clean if contain html
+	if (this._contentType && !this._text) {
+		this._clearLinearContent();
+	}
+
 	if (value === null || value === undefined) {
 		return;
 	}
@@ -472,6 +498,7 @@ WuiDom.prototype.setText = function (value, interval) {
 		this._currentTextContent = value;
 		this._text.nodeValue = value;
 	}
+	this._contentType = cType.CUSTOM;
 };
 
 /**
@@ -709,8 +736,17 @@ WuiDom.prototype._destroyChildren = function () {
  * Emitting 'cleared' so extra cleanup can be done
  */
 WuiDom.prototype.clearContent = function () {
-	this._destroyChildren();
-	this._clearLinearContent();
+
+	switch (this._contentType) {
+	case cType.CUSTOM:
+		this._clearLinearContent();
+		break;
+	case cType.WUI:
+		this._destroyChildren();
+		break
+	}
+
+	this._contentType = cType.EMPTY;
 	this.emit('cleared');
 };
 
