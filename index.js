@@ -8,7 +8,8 @@ var EventEmitter = require('events').EventEmitter;
 var cType = {
 	EMPTY: null,
 	WUI: 'wui',
-	CUSTOM: 'custom'
+	TEXT: 'text',
+	HTML: 'html'
 };
 
 var document = window.document;
@@ -206,7 +207,7 @@ WuiDom.prototype.getParent = function () {
  * @returns {WuiDom}
  */
 WuiDom.prototype.appendChild = function (newChild) {
-	if (this._contentType === cType.CUSTOM) {
+	if (this._contentType && this._contentType !== cType.WUI) {
 		this._clearLinearContent();
 	}
 
@@ -257,7 +258,7 @@ WuiDom.prototype.appendTo = function (newParent) {
  * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
-	if (this._contentType === cType.CUSTOM) {
+	if (this._contentType && this._contentType !== cType.WUI) {
 		this._clearLinearContent();
 	}
 
@@ -414,7 +415,7 @@ WuiDom.prototype.setHtml = function (value, interval) {
 	}
 
 	// Clean if contain text
-	if (this._contentType && this._text) {
+	if (this._contentType === cType.TEXT) {
 		this._clearLinearContent();
 	}
 
@@ -433,7 +434,7 @@ WuiDom.prototype.setHtml = function (value, interval) {
 		this._clearTimer('content');
 	}
 	this.rootElement.innerHTML = value;
-	this._contentType = cType.CUSTOM;
+	this._contentType = cType.HTML;
 };
 
 /**
@@ -464,7 +465,7 @@ WuiDom.prototype.setText = function (value, interval) {
 	}
 
 	// Clean if contain html
-	if (this._contentType && !this._text) {
+	if (this._contentType === cType.HTML) {
 		this._clearLinearContent();
 	}
 
@@ -498,7 +499,7 @@ WuiDom.prototype.setText = function (value, interval) {
 		this._currentTextContent = value;
 		this._text.nodeValue = value;
 	}
-	this._contentType = cType.CUSTOM;
+	this._contentType = cType.TEXT;
 };
 
 /**
@@ -738,7 +739,8 @@ WuiDom.prototype._destroyChildren = function () {
 WuiDom.prototype.clearContent = function () {
 
 	switch (this._contentType) {
-	case cType.CUSTOM:
+	case cType.HTML:
+	case cType.TEXT:
 		this._clearLinearContent();
 		break;
 	case cType.WUI:
