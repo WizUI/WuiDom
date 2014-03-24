@@ -1,5 +1,16 @@
+/**
+ * @module WuiDom
+ */
+
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
+
+var cType = {
+	EMPTY: null,
+	WUI: 'wui',
+	TEXT: 'text',
+	HTML: 'html'
+};
 
 var document = window.document;
 
@@ -62,18 +73,23 @@ function createHtmlElement(tagName, options) {
 
 
 /**
- * @class
- * @classDesc blah
+ * @constructor
+ * @alias module:WuiDom
  * @augments EventEmitter
  * @param {String} tagName
  * @param {Object} [options]
  */
 function WuiDom(tagName, options) {
 	EventEmitter.call(this);
-	this.elementIsVisible = true;
-	this.currentTextContent = null;
+	this._elementIsVisible = true;
+	this._currentTextContent = null;
 	this.rootElement = null;
-	this.text = null;
+	this._text = null;
+	this._name = null;
+	this._childrenList = [];
+	this._childrenMap = {};
+	this._contentType = cType.EMPTY;
+	this._parent = null;
 	if (tagName) {
 		this.assign(tagName, options);
 	}
@@ -94,6 +110,7 @@ WuiDom.prototype.assign = function (tagName, options) {
 	if (this.rootElement) {
 		throw new Error('WuiDom has already an element assigned');
 	}
+
 	if (typeof tagName === 'string') {
 		// if tagName is a real tag name, create the HTML Element with it
 
@@ -109,12 +126,108 @@ WuiDom.prototype.assign = function (tagName, options) {
 		throw new Error('WuiDom.assign requires the given argument to be a DOM Element or tagName.');
 	}
 
+	if (options && options.name) {
+		this._name = options.name;
+	}
+
 	if (options && options.hidden) {
 		// start hidden
 		this.hide();
 	}
 
 	return this.rootElement;
+};
+
+/**
+ * @param {WuiDom|String} child
+ * @returns {WuiDom} - oldChild
+ */
+WuiDom.prototype.removeChild = function (child) {
+	if (typeof child === 'string' && this._childrenMap[child]) {
+		child = this._childrenMap[child];
+	} else if (typeof child === 'string') {
+		throw new Error('WuiDom: Given name is not a current child');
+	}
+
+	var siblingIndex = this._childrenList.indexOf(child);
+	if (siblingIndex === -1) {
+		throw new Error('WuiDom: Not a current child');
+	}
+
+	this.rootElement.removeChild(child.rootElement);
+	this._childrenList.splice(siblingIndex, 1);
+	if (this._childrenMap.hasOwnProperty(child._name)) {
+		delete this._childrenMap[child._name];
+	}
+	child._parent = null;
+	return child;
+};
+
+/**
+ * @private
+ */
+WuiDom.prototype._unsetParent = function () {
+	if (this._parent) {
+		this._parent.removeChild(this);
+	}
+};
+
+/**
+ * @param {WuiDom} parent
+ * @private
+ */
+WuiDom.prototype._setParent = function (parent) {
+	if (parent === this._parent) {
+		// Already set, nothing to do
+		return;
+	}
+
+	if (this._name) {
+		if (parent._childrenMap[this._name]) {
+			throw new Error('WuiDom: Parent already has a child with this name');
+		}
+		parent._childrenMap[this._name] = this;
+	}
+
+	this._parent = parent;
+};
+
+
+/**
+ * @returns {WuiDom|null}
+ */
+WuiDom.prototype.getParent = function () {
+	return this._parent;
+};
+
+
+/**
+ *
+ * @param {WuiDom} newChild
+ * @returns {WuiDom}
+ */
+WuiDom.prototype.appendChild = function (newChild) {
+	if (this._contentType && this._contentType !== cType.WUI) {
+		this._clearLinearContent();
+	}
+
+	if (this === newChild._parent) {
+		var siblingIndex = this._childrenList.indexOf(newChild);
+		if (siblingIndex !== -1) {
+			this._childrenList.splice(siblingIndex, 1);
+		}
+	} else {
+		newChild._unsetParent();
+		newChild._setParent(this);
+	}
+
+	this._childrenList.push(newChild);
+	this.rootElement.appendChild(newChild.rootElement);
+
+	// touch events are known to get lost, so rebind them
+	newChild.rebindTouchListeners();
+	this._contentType = cType.WUI;
+	return newChild;
 };
 
 
@@ -130,6 +243,7 @@ WuiDom.prototype.createChild = function (tagName, options) {
 	return this.appendChild(new WuiDom(tagName, options));
 };
 
+
 /**
  * @param {WuiDom} newParent
  */
@@ -138,17 +252,44 @@ WuiDom.prototype.appendTo = function (newParent) {
 };
 
 
-// override this function to implement custom appendChild behavior
 /**
  * @param {WuiDom} newChild
+ * @param {WuiDom} [newNextSibling]
+ * @returns {WuiDom} - newChild
  */
-WuiDom.prototype.appendChild = function (newChild) {
-	this.rootElement.appendChild(newChild.rootElement);
+WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
+	if (this._contentType && this._contentType !== cType.WUI) {
+		this._clearLinearContent();
+	}
+
+	var siblingIndex;
+
+	if (this === newChild._parent) {
+		var childIndex = this._childrenList.indexOf(newChild);
+		if (childIndex !== -1) {
+			this._childrenList.splice(childIndex, 1);
+		}
+	} else {
+		newChild._unsetParent();
+	}
+
+	if (!newNextSibling) {
+		siblingIndex = this._childrenList.length;
+	} else {
+		siblingIndex = this._childrenList.indexOf(newNextSibling);
+		if (siblingIndex === -1) {
+			throw new Error('WuiDom: Wanted sibling is not a child');
+		}
+	}
+
+	newChild._setParent(this);
+	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
 
 	// touch events are known to get lost, so rebind them
-
 	newChild.rebindTouchListeners();
 
+	this._childrenList.splice(siblingIndex, 0, newChild);
+	this._contentType = cType.WUI;
 	return newChild;
 };
 
@@ -156,73 +297,54 @@ WuiDom.prototype.appendChild = function (newChild) {
 // override this function to implement custom insertBefore behavior
 /**
  * @param {WuiDom} newNextSibling
+ * @returns {WuiDom} - newNextSibling
  */
 WuiDom.prototype.insertBefore = function (newNextSibling) {
-	newNextSibling.rootElement.parentNode.insertBefore(this.rootElement, newNextSibling.rootElement);
+	if (!newNextSibling._parent) {
+		throw new Error('WuiDom: sibling has no parent');
+	}
+	newNextSibling._parent.insertChildBefore(this, newNextSibling);
 
-	// touch events are known to get lost, so rebind them
-
-	this.rebindTouchListeners();
+	return newNextSibling;
 };
 
 // override this function to implement custom insertAsFirstChild behavior
 /**
  * @param {WuiDom} newChild
+ * @returns {WuiDom} - newChild
  */
 WuiDom.prototype.insertAsFirstChild = function (newChild) {
-	var firstChild = this.rootElement.firstChild;
+	var firstChild = this._childrenList[0];
 
 	if (firstChild) {
-		this.rootElement.insertBefore(newChild.rootElement, firstChild);
-	} else {
-		this.rootElement.appendChild(newChild.rootElement);
+		return this.insertChildBefore(newChild, firstChild);
 	}
 
-	// touch events are known to get lost, so rebind them
-
-	newChild.rebindTouchListeners();
-
-	return newChild;
+	return this.appendChild(newChild);
 };
 
 /**
- * @param {WuiDom} newChild
- * @param {WuiDom} newNextSibling
+ * @returns {WuiDom[]} - List of children attached to this WuiDom
  */
-WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
-	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
-
-	// touch events are known to get lost, so rebind them
-
-	newChild.rebindTouchListeners();
+WuiDom.prototype.getChildren = function () {
+	return this._childrenList.concat();
 };
-
 
 /**
- * Timers (for internal use)
- * @param {Number} id
- * @param {Function} fn
- * @param {Number} interval
+ * @param {String} childName
+ * @returns {WuiDom|undefined}
  */
-WuiDom.prototype.setTimer = function (id, fn, interval) {
-	this.clearTimer(id);
-
-	this.timers = this.timers || {};
-
-	var handle = window.setTimeout(function (that) {
-		delete that.timers[handle];
-
-		fn.call(that);
-	}, interval, this);
-
-	this.timers[id] = handle;
+WuiDom.prototype.getChild = function (childName) {
+	return this._childrenMap[childName];
 };
+
 
 /**
  * Timers (for internal use)
- * @param {Number} id
+ * @param {String} id
+ * @private
  */
-WuiDom.prototype.clearTimer = function (id) {
+WuiDom.prototype._clearTimer = function (id) {
 	if (!this.timers) {
 		return;
 	}
@@ -236,6 +358,47 @@ WuiDom.prototype.clearTimer = function (id) {
 	}
 };
 
+/**
+ * @deprecated
+ * @param id
+ */
+WuiDom.prototype.clearTimer = function (id) {
+	console.warn("clearTimer is deprecated");
+	this._clearTimer(id);
+};
+
+/**
+ * Timers (for internal use)
+ * @param {String} id
+ * @param {Function} fn
+ * @param {Number} interval
+ * @private
+ */
+WuiDom.prototype._setTimer = function (id, fn, interval) {
+	this._clearTimer(id);
+
+	this.timers = this.timers || {};
+
+	var handle = window.setTimeout(function (that) {
+		delete that.timers[handle];
+
+		fn.call(that);
+	}, interval, this);
+
+	this.timers[id] = handle;
+};
+
+/**
+ * @deprecated
+ * @param id
+ * @param fn
+ * @param interval
+ */
+WuiDom.prototype.setTimer = function (id, fn, interval) {
+	console.warn("setTimer is deprecated");
+	this._setTimer(id, fn, interval);
+};
+
 
 /**
  * Content: html and text
@@ -246,23 +409,43 @@ WuiDom.prototype.clearTimer = function (id) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setHtml = function (value, interval) {
+	// Clean if contain children
+	if (this._contentType === cType.WUI) {
+		this._destroyChildren();
+	}
+
+	// Clean if contain text
+	if (this._contentType === cType.TEXT) {
+		this._clearLinearContent();
+	}
 
 	if (typeof value === 'function') {
 		var fn = value;
 		value = fn();
 
 		if (interval) {
-			this.setTimer('content', function () {
+			this._setTimer('content', function () {
 				this.setHtml(fn, interval);
 			}, interval);
 		} else {
-			this.clearTimer('content');
+			this._clearTimer('content');
 		}
 	} else {
-		this.clearTimer('content');
+		this._clearTimer('content');
 	}
-
 	this.rootElement.innerHTML = value;
+	this._contentType = cType.HTML;
+};
+
+/**
+ * Clean text or html content
+ * @private
+ */
+WuiDom.prototype._clearLinearContent = function () {
+	this._clearTimer('content');
+	this._text = null;
+	this._currentTextContent = null;
+	this.rootElement.innerHTML = "";
 };
 
 /**
@@ -276,6 +459,16 @@ WuiDom.prototype.setHtml = function (value, interval) {
  * @param {Number} [interval]
  */
 WuiDom.prototype.setText = function (value, interval) {
+	// Clean if contain children
+	if (this._contentType === cType.WUI) {
+		this._destroyChildren();
+	}
+
+	// Clean if contain html
+	if (this._contentType === cType.HTML) {
+		this._clearLinearContent();
+	}
+
 	if (value === null || value === undefined) {
 		return;
 	}
@@ -287,32 +480,33 @@ WuiDom.prototype.setText = function (value, interval) {
 		value = fn();
 
 		if (interval) {
-			this.setTimer('content', function () {
+			this._setTimer('content', function () {
 				this.setText(fn, interval);
 			}, interval);
 		} else {
-			this.clearTimer('content');
+			this._clearTimer('content');
 		}
 	} else {
-		this.clearTimer('content');
+		this._clearTimer('content');
 	}
 
-	if (this.currentTextContent === null) {
-		this.text = document.createTextNode("");
-		this.rootElement.appendChild(this.text);
+	if (!this._text) {
+		this._text = document.createTextNode("");
+		this.rootElement.appendChild(this._text);
 	}
 
-	if (value !== this.currentTextContent) {
-		this.currentTextContent = value;
-		this.text.nodeValue = value;
+	if (value !== this._currentTextContent) {
+		this._currentTextContent = value;
+		this._text.nodeValue = value;
 	}
+	this._contentType = cType.TEXT;
 };
 
 /**
  * @returns {String}
  */
 WuiDom.prototype.getText = function () {
-	return this.currentTextContent;
+	return this._currentTextContent;
 };
 
 
@@ -382,7 +576,7 @@ function joinArgumentsAsClassNames(base, args) {
 		str += ' ' + args[0];
 	}
 
-	for (var i = 1, len = args.length; i < len; i++) {
+	for (var i = 1, len = args.length; i < len; i += 1) {
 		str += ' ' + args[i];
 	}
 
@@ -392,14 +586,13 @@ function joinArgumentsAsClassNames(base, args) {
 
 function uniqueClassNames(str) {
 	var classNames = parseClassNames(str);
-	var uniqueClassNames = {};
+	var classNameMap = {};
 
-	for (var i = 0, len = classNames.length; i < len; i++) {
-		var className = classNames[i];
-		uniqueClassNames[className] = null;
+	for (var i = 0, len = classNames.length; i < len; i += 1) {
+		classNameMap[classNames[i]] = null;
 	}
 
-	return Object.keys(uniqueClassNames).join(' ');
+	return Object.keys(classNameMap).join(' ');
 }
 
 
@@ -408,10 +601,10 @@ function removeClassNames(baseList, args) {
 	// baseList is required to be an array (not a string)
 	// args is expected to be an arguments object or array
 
-	for (var i = 0, len = args.length; i < len; i++) {
+	for (var i = 0, len = args.length; i < len; i += 1) {
 		var parsed = parseClassNames(args[i]);
 
-		for (var j = 0, jlen = parsed.length; j < jlen; j++) {
+		for (var j = 0, jlen = parsed.length; j < jlen; j += 1) {
 			var index = baseList.indexOf(parsed[j]);
 
 			if (index !== -1) {
@@ -490,7 +683,7 @@ WuiDom.prototype.delClassNames = function (classNames) {
 /**
  * Finding sub-elements
  * @param {String} selector
- * @returns {*}
+ * @returns {Node|null}
  */
 WuiDom.prototype.query = function (selector) {
 	var elm;
@@ -510,7 +703,7 @@ WuiDom.prototype.query = function (selector) {
 
 /**
  * @param {String} selector
- * @returns {*}
+ * @returns {NodeList}
  */
 WuiDom.prototype.queryAll = function (selector) {
 	var elm;
@@ -528,9 +721,40 @@ WuiDom.prototype.queryAll = function (selector) {
 	return elm;
 };
 
+/**
+ * Destroy all children of a WuiDom
+ * @private
+ */
+WuiDom.prototype._destroyChildren = function () {
+	var children = this._childrenList.concat();
+	for (var i = 0, len = children.length; i < len; i += 1) {
+		children[i].destroy();
+	}
+};
 
 /**
- * Cleanup
+ * Clear any actual content of the WuiDom
+ * Emitting 'cleared' so extra cleanup can be done
+ */
+WuiDom.prototype.clearContent = function () {
+
+	switch (this._contentType) {
+	case cType.HTML:
+	case cType.TEXT:
+		this._clearLinearContent();
+		break;
+	case cType.WUI:
+		this._destroyChildren();
+		break
+	}
+
+	this._contentType = cType.EMPTY;
+	this.emit('cleared');
+};
+
+
+/**
+ * Removing the domElement and
  */
 WuiDom.prototype.destroy = function () {
 	this.emit('destroy');
@@ -539,6 +763,11 @@ WuiDom.prototype.destroy = function () {
 
 	delete this._queryCache;
 	delete this._queryAllCache;
+
+	// clean siblings
+
+	this._unsetParent();
+	this._destroyChildren();
 
 	// cleanup DOM tree
 
@@ -560,7 +789,7 @@ WuiDom.prototype.destroy = function () {
 
 	if (this.timers) {
 		for (var id in this.timers) {
-			this.clearTimer(id);
+			this._clearTimer(id);
 		}
 	}
 
@@ -568,6 +797,7 @@ WuiDom.prototype.destroy = function () {
 
 	this.removeAllListeners();
 };
+
 
 
 /**
@@ -589,7 +819,7 @@ WuiDom.prototype.hideMethod = function () {
  */
 WuiDom.prototype.show = function (data) {
 	this.emit('show', data);
-	this.elementIsVisible = true;
+	this._elementIsVisible = true;
 	this.showMethod();
 };
 
@@ -598,7 +828,7 @@ WuiDom.prototype.show = function (data) {
  */
 WuiDom.prototype.hide = function (data) {
 	this.emit('hide', data);
-	this.elementIsVisible = false;
+	this._elementIsVisible = false;
 	this.hideMethod();
 };
 
@@ -606,7 +836,7 @@ WuiDom.prototype.hide = function (data) {
  * @returns {Boolean}
  */
 WuiDom.prototype.isVisible = function () {
-	return this.elementIsVisible;
+	return this._elementIsVisible;
 };
 
 
@@ -645,7 +875,7 @@ WuiDom.prototype.bindToTome = function (tome, cb) {
 	if (!cb) {
 		cb = function (value) {
 			self.setText(value);
-		}
+		};
 	}
 
 	function update(was) {
