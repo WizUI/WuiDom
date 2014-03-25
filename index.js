@@ -765,7 +765,7 @@ WuiDom.prototype.clearContent = function () {
 		break;
 	case cType.WUI:
 		this._destroyChildren();
-		break
+		break;
 	}
 
 	this._contentType = cType.EMPTY;
