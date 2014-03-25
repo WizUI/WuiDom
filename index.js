@@ -16,10 +16,10 @@ var documentObj = window.document;
 
 
 /**
- * Mouse event lock timer
- * @type False|Number
+ * Mouse event lock timer. Set to 0 when not locked.
+ * @type Number
  */
-var mouseLock = false;
+var mouseLock = 0;
 
 /**
  * Mouse event lock threshold
@@ -45,7 +45,7 @@ function updateMouseLock() {
  * @returns {undefined}
  */
 function clearMouseLock() {
-	mouseLock = false;
+	mouseLock = 0;
 }
 
 
