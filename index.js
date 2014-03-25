@@ -1,31 +1,51 @@
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 
-var document = window.document;
-
-// non-touch enabled browser workarounds
-
-var canTouch = ('ontouchstart' in window && 'ontouchend' in window && 'ontouchmove' in window);
-
-var touchToMouseMap = {
-	touchstart: 'mousedown',
-	touchmove: 'mousemove',
-	touchend: 'mouseup',
-	touchcancel: false
-};
+var documentObj = window.document;
 
 
 /**
- * Fixes for unsupported dom events
- * @private
- * @param {DomEvent} domEventName
+ * Mouse event lock timer
+ * @type False|Number
  */
-function translateDomEventName(domEventName) {
-	if (!canTouch && touchToMouseMap.hasOwnProperty(domEventName)) {
-		return touchToMouseMap[domEventName];
-	}
+var mouseLock = false;
 
-	return domEventName;
+/**
+ * Mouse event lock threshold
+ * @type Number
+ */
+var mouseLockThreshold = 500;
+
+
+/**
+ * Function which updates timestamp on mouse lock. This is used to determine if mouse events occur
+ * within the locked threshold.
+ * 
+ * @returns {undefined}
+ */
+function updateMouseLock() {
+	mouseLock = Date.now();
+}
+
+
+/**
+ * Function which clears mouse events lock.
+ * 
+ * @returns {undefined}
+ */
+function clearMouseLock() {
+	mouseLock = false;
+}
+
+
+/**
+ * Function which checks if a mouse event occured within the mouse lock threshold. If so it will
+ * return true. Otherwise it will return false.
+ * 
+ * @returns {Boolean}
+ */
+function mouseLocked() {
+	return (Date.now() - mouseLock) < mouseLockThreshold;
 }
 
 
@@ -36,7 +56,7 @@ function translateDomEventName(domEventName) {
  * @param {Object} [options]
  */
 function createHtmlElement(tagName, options) {
-	var key, elm = document.createElement(tagName);
+	var key, elm = documentObj.createElement(tagName);
 
 	if (options) {
 		if (options.className) {
@@ -298,7 +318,7 @@ WuiDom.prototype.setText = function (value, interval) {
 	}
 
 	if (this.currentTextContent === null) {
-		this.text = document.createTextNode("");
+		this.text = documentObj.createTextNode("");
 		this.rootElement.appendChild(this.text);
 	}
 
@@ -382,7 +402,7 @@ function joinArgumentsAsClassNames(base, args) {
 		str += ' ' + args[0];
 	}
 
-	for (var i = 1, len = args.length; i < len; i++) {
+	for (var i = 1, len = args.length; i < len; i += 1) {
 		str += ' ' + args[i];
 	}
 
@@ -392,14 +412,14 @@ function joinArgumentsAsClassNames(base, args) {
 
 function uniqueClassNames(str) {
 	var classNames = parseClassNames(str);
-	var uniqueClassNames = {};
+	var uniqueClassNamesObj = {};
 
-	for (var i = 0, len = classNames.length; i < len; i++) {
+	for (var i = 0, len = classNames.length; i < len; i += 1) {
 		var className = classNames[i];
-		uniqueClassNames[className] = null;
+		uniqueClassNamesObj[className] = null;
 	}
 
-	return Object.keys(uniqueClassNames).join(' ');
+	return Object.keys(uniqueClassNamesObj).join(' ');
 }
 
 
@@ -408,10 +428,10 @@ function removeClassNames(baseList, args) {
 	// baseList is required to be an array (not a string)
 	// args is expected to be an arguments object or array
 
-	for (var i = 0, len = args.length; i < len; i++) {
+	for (var i = 0, len = args.length; i < len; i += 1) {
 		var parsed = parseClassNames(args[i]);
 
-		for (var j = 0, jlen = parsed.length; j < jlen; j++) {
+		for (var j = 0, jlen = parsed.length; j < jlen; j += 1) {
 			var index = baseList.indexOf(parsed[j]);
 
 			if (index !== -1) {
@@ -645,7 +665,7 @@ WuiDom.prototype.bindToTome = function (tome, cb) {
 	if (!cb) {
 		cb = function (value) {
 			self.setText(value);
-		}
+		};
 	}
 
 	function update(was) {
@@ -670,75 +690,165 @@ WuiDom.prototype.allowDomEvents = function () {
 		return;
 	}
 
-	var that = this;
+	// Initialize dom event listeners object
 	this.domListeners = {};
 
-
+	// Bind relavent DOM event listeners wuiDom event listener is created
 	this.on('newListener', function (evt) {
-		var evtNameParts = evt.split('.');
+		var that = this;
 
+		// Separate DOM event prefix from DOM event name
+		var evtNameParts = evt.split('.');
+		var domEventName = evtNameParts[1];
+
+		// Ensure first part is in fact the prefix
 		if (evtNameParts[0] !== domEventPrefix) {
 			return;
 		}
 
-		// translate the dom event name for compatibility reasons
+		// Check if DOM event name is valid and also make sure we are not already listening for
+		// these DOM events
+		if (!domEventName || this.domListeners[domEventName]) {
+			return;
+		}
 
-		var domEventName = translateDomEventName(evtNameParts[1]);
+		switch (domEventName) {
+		case 'touchstart':
+			// If this event is a touchstart event, attach mousedown compatibility bindings along
+			// with the touchstart event
+			var mouseDownFn = function (e) {
+				if (mouseLocked() || e.which !== 1) {
+					return;
+				}
 
-		// if we're not yet listening for this event, add a dom event listener that emits dom events
+				that.emit('dom.touchstart', e);
+			};
 
-		if (domEventName && !that.domListeners[domEventName]) {
-			var fn = function (e) {
+			var touchStartFn = function (e) {
+				updateMouseLock();
+				that.emit('dom.touchstart', e);
+			};
+
+			this.domListeners[domEventName] = {
+				'mousedown': mouseDownFn,
+				'touchstart': touchStartFn
+			};
+
+			this.rootElement.addEventListener('mousedown', mouseDownFn);
+			this.rootElement.addEventListener('touchstart', touchStartFn);
+			break;
+		case 'touchmove':
+			// If this event is a touchmove event, attach mousemove compatibility bindings along
+			// with the touchmove event
+			var mouseMoveFn = function (e) {
+				if (mouseLock || e.which !== 1) {
+					return;
+				}
+
+				that.emit('dom.touchmove', e);
+			};
+
+			var touchMoveFn = function (e) {
+				that.emit('dom.touchmove', e);
+			};
+
+			this.domListeners[domEventName] = {
+				'mousemove': mouseMoveFn,
+				'touchmove': touchMoveFn
+			};
+
+			this.rootElement.addEventListener('mousemove', mouseMoveFn);
+			this.rootElement.addEventListener('touchmove', touchMoveFn);
+			break;
+		case 'touchend':
+			// If this event is a touchend event, attach mouseup compatibility bindings along with
+			// the touchend event
+			var mouseUpFn = function (e) {
+				if (mouseLocked() || e.which !== 1) {
+					clearMouseLock();
+					return;
+				}
+
+				that.emit('dom.touchend', e);
+			};
+
+			var touchEndFn = function (e) {
+				updateMouseLock();
+				that.emit('dom.touchend', e);
+			};
+
+			this.domListeners[domEventName] = {
+				'mouseup': mouseUpFn,
+				'touchend': touchEndFn
+			};
+
+			this.rootElement.addEventListener('mouseup', mouseUpFn);
+			this.rootElement.addEventListener('touchend', touchEndFn);
+			break;
+		default:
+			// Otherwise the default is to bind event as is
+			var defaultFn = function (e) {
 				that.emit(evt, e);
 			};
 
-			if (domEventName === 'mousedown' || domEventName === 'mousemove') {
-				// on desktop, only allow left-mouse clicks to fire events
-
-				fn = function (e) {
-					if (e.which === 1) {
-						that.emit(evt, e);
-					}
-				};
-			}
-
-			that.domListeners[domEventName] = fn;
-
-			that.rootElement.addEventListener(domEventName, fn);
+			this.domListeners[domEventName] = defaultFn;
+			this.rootElement.addEventListener(domEventName, defaultFn);
 		}
 	});
 
+	// Remove DOM listeners when the last event listener for that event gets removed
 	this.on('removeListener', function (evt) {
-		// when the last event listener for this event gets removed, we stop listening for DOM events
-
-		if (that.listeners(evt).length === 0) {
+		if (this.listeners(evt).length === 0) {
 			var evtNameParts = evt.split('.');
 
 			if (evtNameParts[0] !== domEventPrefix) {
 				return;
 			}
 
-			var domEventName = translateDomEventName(evtNameParts[1]);
+			var domEventName = evtNameParts[1];
+			var domListener = this.domListeners[domEventName];
 
-			var fn = that.domListeners[domEventName];
-
-			if (fn) {
-				that.rootElement.removeEventListener(domEventName, fn);
-
-				delete that.domListeners[domEventName];
+			// Ensure dom event listener exists
+			if (!domListener) {
+				return;
 			}
+			
+			// Destroy grouped event listeners
+			if (typeof domListener === 'object') {
+				for (var eventName in domListener) {
+					var evtFn = domListener[eventName];
+					this.rootElement.removeEventListener(eventName, evtFn);
+				}
+
+				delete this.domListeners[domEventName];
+				return;
+			}
+
+			// Default event listener destruction
+			this.rootElement.removeEventListener(domEventName, domListener);
+			delete this.domListeners[domEventName];
 		}
 	});
 
+	// Destroy DOM event listeners on destroy
 	this.on('destroy', function () {
-		// destroy DOM event listeners
+		for (var domEventName in this.domListeners) {
+			var domListener = this.domListeners[domEventName];
 
-		for (var domEventName in that.domListeners) {
-			var fn = that.domListeners[domEventName];
+			// Destroy grouped event listeners
+			if (typeof domListener === 'object') {
+				for (var eventName in domListener) {
+					var evtFn = domListener[eventName];
+					this.rootElement.removeEventListener(eventName, evtFn);
+				}
 
-			that.rootElement.removeEventListener(domEventName, fn);
+				continue;
+			}
+
+			// Default event listener destruction
+			this.rootElement.removeEventListener(domEventName, domListener);
 		}
 
-		that.domListeners = {};
+		this.domListeners = {};
 	});
 };
