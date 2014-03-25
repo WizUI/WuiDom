@@ -31,8 +31,6 @@ var mouseLockThreshold = 500;
 /**
  * Function which updates timestamp on mouse lock. This is used to determine if mouse events occur
  * within the locked threshold.
- * 
- * @returns {undefined}
  */
 function updateMouseLock() {
 	mouseLock = Date.now();
@@ -41,8 +39,6 @@ function updateMouseLock() {
 
 /**
  * Function which clears mouse events lock.
- * 
- * @returns {undefined}
  */
 function clearMouseLock() {
 	mouseLock = 0;
