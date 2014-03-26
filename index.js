@@ -828,10 +828,13 @@ WuiDom.prototype.rebindTouchListeners = function () {
 				continue;
 			}
 
-			var fn = this.domListeners[domEventName];
-
-			elm.removeEventListener(domEventName, fn);
-			elm.addEventListener(domEventName, fn);
+			// Destroy grouped event listeners
+			var domListener = this.domListeners[domEventName];
+			for (var eventName in domListener) {
+				var evtFn = domListener[eventName];
+				elm.removeEventListener(eventName, evtFn);
+				elm.addEventListener(eventName, evtFn);
+			}
 		}
 	}
 };
