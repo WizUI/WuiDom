@@ -189,7 +189,7 @@ exports.remove = function (evt) {
 	}
 
 	// Destroy grouped event listeners
-	if (typeof domListener === 'object' && domListener !== null) {
+	if (domListener !== null && typeof domListener === 'object') {
 		for (var eventName in domListener) {
 			var evtFn = domListener[eventName];
 			this.rootElement.removeEventListener(eventName, evtFn);
@@ -212,7 +212,7 @@ exports.destroy = function () {
 		var domListener = this.domListeners[domEventName];
 
 		// Destroy grouped event listeners
-		if (typeof domListener === 'object' && domListener !== null) {
+		if (domListener !== null && typeof domListener === 'object') {
 			for (var eventName in domListener) {
 				var evtFn = domListener[eventName];
 				this.rootElement.removeEventListener(eventName, evtFn);
