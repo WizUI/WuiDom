@@ -69,7 +69,6 @@ exports.new = function (evt) {
 
 	// Separate DOM event prefix from DOM event name
 	var evtNameParts = evt.split('.');
-	var domEventName = evtNameParts[1];
 
 	// Ensure first part is in fact the prefix
 	if (evtNameParts[0] !== domEventPrefix) {
@@ -78,6 +77,7 @@ exports.new = function (evt) {
 
 	// Check if DOM event name is valid and also make sure we are not already listening for
 	// these DOM events
+	var domEventName = evtNameParts[1];
 	if (!domEventName || this.domListeners[domEventName]) {
 		return;
 	}
