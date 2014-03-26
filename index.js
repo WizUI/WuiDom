@@ -17,6 +17,21 @@ var documentObj = window.document;
 
 /**
  * Mouse event lock timer. Set to 0 when not locked.
+ * 
+ * Note: This lock is required to overcome an issue with touch and mouse event compatibility across
+ * browsers. The main issue being that when touch events are present the mouse events are fired
+ * 300ms later. As such using just mouse events proves to be too slow on mobile devices. Further to
+ * this when actually using the touch events, we would end up with double events, and what's worse
+ * is that mouse events don't only occur 300ms later, but they also don't exactly fire on the DOM
+ * where the touch event fired. But rather so, it would fire on any element which ends up there
+ * after the touch event is processed. This resulted in ghost clicks on links etc, that would appear
+ * after the touch event.
+ * 
+ * References:
+ *  - http://www.html5rocks.com/en/mobile/touchandmouse/
+ *  - https://github.com/Polymer/PointerEvents
+ *  - http://blogs.msdn.com/b/davrous/archive/2013/02/20/handling-touch-in-your-html5-apps-thanks-to-the-pointer-events-of-ie10-and-windows-8.aspx
+ * 
  * @type Number
  */
 var mouseLock = 0;
@@ -51,7 +66,7 @@ function clearMouseLock() {
  * 
  * @returns {Boolean}
  */
-function mouseLocked() {
+function isMouseLocked() {
 	return (Date.now() - mouseLock) < mouseLockThreshold;
 }
 
@@ -919,7 +934,7 @@ WuiDom.prototype.allowDomEvents = function () {
 	// Initialize dom event listeners object
 	this.domListeners = {};
 
-	// Bind relavent DOM event listeners wuiDom event listener is created
+	// Bind relevant DOM event listeners when the corresponding wuiDom event listener is created
 	this.on('newListener', function (evt) {
 		var that = this;
 
@@ -943,7 +958,7 @@ WuiDom.prototype.allowDomEvents = function () {
 			// If this event is a touchstart event, attach mousedown compatibility bindings along
 			// with the touchstart event
 			var mouseDownFn = function (e) {
-				if (mouseLocked() || e.which !== 1) {
+				if (isMouseLocked() || e.which !== 1) {
 					return;
 				}
 
@@ -955,7 +970,7 @@ WuiDom.prototype.allowDomEvents = function () {
 				that.emit('dom.touchstart', e);
 			};
 
-			this.domListeners[domEventName] = {
+			this.domListeners['dom.touchstart'] = {
 				'mousedown': mouseDownFn,
 				'touchstart': touchStartFn
 			};
@@ -978,7 +993,7 @@ WuiDom.prototype.allowDomEvents = function () {
 				that.emit('dom.touchmove', e);
 			};
 
-			this.domListeners[domEventName] = {
+			this.domListeners['dom.touchmove'] = {
 				'mousemove': mouseMoveFn,
 				'touchmove': touchMoveFn
 			};
@@ -990,7 +1005,7 @@ WuiDom.prototype.allowDomEvents = function () {
 			// If this event is a touchend event, attach mouseup compatibility bindings along with
 			// the touchend event
 			var mouseUpFn = function (e) {
-				if (mouseLocked() || e.which !== 1) {
+				if (isMouseLocked() || e.which !== 1) {
 					clearMouseLock();
 					return;
 				}
@@ -1003,7 +1018,7 @@ WuiDom.prototype.allowDomEvents = function () {
 				that.emit('dom.touchend', e);
 			};
 
-			this.domListeners[domEventName] = {
+			this.domListeners['dom.touchend'] = {
 				'mouseup': mouseUpFn,
 				'touchend': touchEndFn
 			};
@@ -1040,7 +1055,7 @@ WuiDom.prototype.allowDomEvents = function () {
 			}
 			
 			// Destroy grouped event listeners
-			if (typeof domListener === 'object') {
+			if (typeof domListener === 'object' && domListener !== null) {
 				for (var eventName in domListener) {
 					var evtFn = domListener[eventName];
 					this.rootElement.removeEventListener(eventName, evtFn);
@@ -1062,7 +1077,7 @@ WuiDom.prototype.allowDomEvents = function () {
 			var domListener = this.domListeners[domEventName];
 
 			// Destroy grouped event listeners
-			if (typeof domListener === 'object') {
+			if (typeof domListener === 'object' && domListener !== null) {
 				for (var eventName in domListener) {
 					var evtFn = domListener[eventName];
 					this.rootElement.removeEventListener(eventName, evtFn);
