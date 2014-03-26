@@ -99,7 +99,7 @@ exports.new = function (evt) {
 			that.emit('dom.touchstart', e);
 		};
 
-		this.domListeners['touchstart'] = {
+		this.domListeners.touchstart = {
 			'mousedown': mouseDownFn,
 			'touchstart': touchStartFn
 		};
@@ -122,7 +122,7 @@ exports.new = function (evt) {
 			that.emit('dom.touchmove', e);
 		};
 
-		this.domListeners['touchmove'] = {
+		this.domListeners.touchmove = {
 			'mousemove': mouseMoveFn,
 			'touchmove': touchMoveFn
 		};
@@ -147,7 +147,7 @@ exports.new = function (evt) {
 			that.emit('dom.touchend', e);
 		};
 
-		this.domListeners['touchend'] = {
+		this.domListeners.touchend = {
 			'mouseup': mouseUpFn,
 			'touchend': touchEndFn
 		};
