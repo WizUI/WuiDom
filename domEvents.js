@@ -170,36 +170,38 @@ exports.new = function (evt) {
  * Function which removes DOM event listeners for a given wui-dom event
  */
 exports.remove = function (evt) {
-	if (this.listeners(evt).length === 0) {
-		var evtNameParts = evt.split('.');
-
-		if (evtNameParts[0] !== domEventPrefix) {
-			return;
-		}
-
-		var domEventName = evtNameParts[1];
-		var domListener = this.domListeners[domEventName];
-
-		// Ensure dom event listener exists
-		if (!domListener) {
-			return;
-		}
-
-		// Destroy grouped event listeners
-		if (typeof domListener === 'object' && domListener !== null) {
-			for (var eventName in domListener) {
-				var evtFn = domListener[eventName];
-				this.rootElement.removeEventListener(eventName, evtFn);
-			}
-
-			delete this.domListeners[domEventName];
-			return;
-		}
-
-		// Default event listener destruction
-		this.rootElement.removeEventListener(domEventName, domListener);
-		delete this.domListeners[domEventName];
+	if (this.listeners(evt).length !== 0) {
+		return;
 	}
+
+	var evtNameParts = evt.split('.');
+
+	if (evtNameParts[0] !== domEventPrefix) {
+		return;
+	}
+
+	var domEventName = evtNameParts[1];
+	var domListener = this.domListeners[domEventName];
+
+	// Ensure dom event listener exists
+	if (!domListener) {
+		return;
+	}
+
+	// Destroy grouped event listeners
+	if (typeof domListener === 'object' && domListener !== null) {
+		for (var eventName in domListener) {
+			var evtFn = domListener[eventName];
+			this.rootElement.removeEventListener(eventName, evtFn);
+		}
+
+		delete this.domListeners[domEventName];
+		return;
+	}
+
+	// Default event listener destruction
+	this.rootElement.removeEventListener(domEventName, domListener);
+	delete this.domListeners[domEventName];
 };
 
 /**
