@@ -50,7 +50,7 @@ function clearMouseLock() {
  * @returns {Boolean}
  */
 function isMouseLocked() {
-	return (Date.now() - mouseLock) < mouseLockThreshold;
+	return mouseLock !== 0 && (Date.now() - mouseLock) < mouseLockThreshold;
 }
 
 
