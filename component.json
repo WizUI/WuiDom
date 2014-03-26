@@ -8,6 +8,7 @@
 		"Wizcorp/events": "0.1.1"
 	},
 	"scripts": [
-		"index.js"
+		"index.js",
+		"domEvents.js"
 	]
 }
