@@ -12,7 +12,7 @@ var cType = {
 	HTML: 'html'
 };
 
-var documentObj = window.document;
+var document = window.document;
 
 
 /**
@@ -78,7 +78,7 @@ function isMouseLocked() {
  * @param {Object} [options]
  */
 function createHtmlElement(tagName, options) {
-	var key, elm = documentObj.createElement(tagName);
+	var key, elm = document.createElement(tagName);
 
 	if (options) {
 		if (options.className) {
