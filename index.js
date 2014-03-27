@@ -828,7 +828,6 @@ WuiDom.prototype.rebindTouchListeners = function () {
 				continue;
 			}
 
-			// Destroy grouped event listeners
 			var domListener = this.domListeners[domEventName];
 			for (var eventName in domListener) {
 				var evtFn = domListener[eventName];
