@@ -12,6 +12,7 @@
  * 
  * References:
  *  - http://www.html5rocks.com/en/mobile/touchandmouse/
+ *  - https://developers.google.com/mobile/articles/fast_buttons
  *  - https://github.com/Polymer/PointerEvents
  *  - http://blogs.msdn.com/b/davrous/archive/2013/02/20/handling-touch-in-your-html5-apps-thanks-to-the-pointer-events-of-ie10-and-windows-8.aspx
  * 
@@ -63,6 +64,7 @@ var domEventPrefix = 'dom';
 
 /**
  * Function which created DOM event listeners according to the given wui-dom events.
+ * @param {String} evt
  */
 exports.new = function (evt) {
 	var that = this;
@@ -145,6 +147,12 @@ exports.new = function (evt) {
 		var touchEndFn = function (e) {
 			updateMouseLock();
 			that.emit('dom.touchend', e);
+
+			// This prevents the firing of mouse events after a touchend. 
+			// This fixes the issue with iframes, where by if an iframe falls under your pointer
+			// after touchend is processed, but before the mouse events are, the mouse events are
+			// fired inside the iframe placing them out of scope. This prevents us from intervening.
+			e.preventDefault();
 		};
 
 		this.domListeners.touchend = {
@@ -168,6 +176,7 @@ exports.new = function (evt) {
 
 /**
  * Function which removes DOM event listeners for a given wui-dom event
+ * @param {String} evt
  */
 exports.remove = function (evt) {
 	if (this.listeners(evt).length !== 0) {
