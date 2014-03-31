@@ -171,6 +171,7 @@ exports.new = function (evt) {
 
 		this.domListeners[domEventName] = defaultFn;
 		this.rootElement.addEventListener(domEventName, defaultFn);
+		break;
 	}
 };
 
