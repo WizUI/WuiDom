@@ -1,5 +1,10 @@
 # Release history
 
+## v0.3.1
+
+### Dependencies update
+`Wizcorp/events` is now v0.1.2
+
 ## v0.3.0
 
 ### Family matters
