@@ -1,7 +1,7 @@
 {
 	"name": "WuiDom",
 	"repo": "Wizcorp/wui-Dom",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "Core Class for Wui Dom",
 	"dependencies": {
 		"Wizcorp/util": "0.1.0",
