@@ -1,9 +1,16 @@
 # Release history
 
+## v0.3.2
+
+### Don't you know, I just told you so
+In `#replaceClassNames` when a class name was present from the `delList` and the `addList` it wouldn't be added.
+
+
 ## v0.3.1
 
 ### Dependencies update
 `Wizcorp/events` is now v0.1.2
+
 
 ## v0.3.0
 
