@@ -4,6 +4,7 @@
 
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
+var domEvents = require('./domEvents.js');
 
 var cType = {
 	EMPTY: null,
@@ -13,31 +14,6 @@ var cType = {
 };
 
 var document = window.document;
-
-// non-touch enabled browser workarounds
-
-var canTouch = ('ontouchstart' in window && 'ontouchend' in window && 'ontouchmove' in window);
-
-var touchToMouseMap = {
-	touchstart: 'mousedown',
-	touchmove: 'mousemove',
-	touchend: 'mouseup',
-	touchcancel: false
-};
-
-
-/**
- * Fixes for unsupported dom events
- * @private
- * @param {DomEvent} domEventName
- */
-function translateDomEventName(domEventName) {
-	if (!canTouch && touchToMouseMap.hasOwnProperty(domEventName)) {
-		return touchToMouseMap[domEventName];
-	}
-
-	return domEventName;
-}
 
 
 /**
@@ -745,7 +721,7 @@ WuiDom.prototype.clearContent = function () {
 		break;
 	case cType.WUI:
 		this._destroyChildren();
-		break
+		break;
 	}
 
 	this._contentType = cType.EMPTY;
@@ -840,10 +816,6 @@ WuiDom.prototype.isVisible = function () {
 };
 
 
-// DOM events
-
-var domEventPrefix = 'dom';
-
 /**
  * rebindTouchListeners
  */
@@ -856,10 +828,12 @@ WuiDom.prototype.rebindTouchListeners = function () {
 				continue;
 			}
 
-			var fn = this.domListeners[domEventName];
-
-			elm.removeEventListener(domEventName, fn);
-			elm.addEventListener(domEventName, fn);
+			var domListener = this.domListeners[domEventName];
+			for (var eventName in domListener) {
+				var evtFn = domListener[eventName];
+				elm.removeEventListener(eventName, evtFn);
+				elm.addEventListener(eventName, evtFn);
+			}
 		}
 	}
 };
@@ -895,80 +869,20 @@ WuiDom.prototype.bindToTome = function (tome, cb) {
  * allowDomEvents
  */
 WuiDom.prototype.allowDomEvents = function () {
+	// Check if DOM event listeners are already set
 	if (this.domListeners) {
-		// already set
 		return;
 	}
 
-	var that = this;
+	// Initialize DOM event listeners object
 	this.domListeners = {};
 
+	// Bind relevant DOM event listeners when the corresponding wuiDom event listener is created
+	this.on('newListener', domEvents.new);
 
-	this.on('newListener', function (evt) {
-		var evtNameParts = evt.split('.');
+	// Remove DOM listeners when the last event listener for that event gets removed
+	this.on('removeListener', domEvents.remove);
 
-		if (evtNameParts[0] !== domEventPrefix) {
-			return;
-		}
-
-		// translate the dom event name for compatibility reasons
-
-		var domEventName = translateDomEventName(evtNameParts[1]);
-
-		// if we're not yet listening for this event, add a dom event listener that emits dom events
-
-		if (domEventName && !that.domListeners[domEventName]) {
-			var fn = function (e) {
-				that.emit(evt, e);
-			};
-
-			if (domEventName === 'mousedown' || domEventName === 'mousemove') {
-				// on desktop, only allow left-mouse clicks to fire events
-
-				fn = function (e) {
-					if (e.which === 1) {
-						that.emit(evt, e);
-					}
-				};
-			}
-
-			that.domListeners[domEventName] = fn;
-
-			that.rootElement.addEventListener(domEventName, fn);
-		}
-	});
-
-	this.on('removeListener', function (evt) {
-		// when the last event listener for this event gets removed, we stop listening for DOM events
-
-		if (that.listeners(evt).length === 0) {
-			var evtNameParts = evt.split('.');
-
-			if (evtNameParts[0] !== domEventPrefix) {
-				return;
-			}
-
-			var domEventName = translateDomEventName(evtNameParts[1]);
-
-			var fn = that.domListeners[domEventName];
-
-			if (fn) {
-				that.rootElement.removeEventListener(domEventName, fn);
-
-				delete that.domListeners[domEventName];
-			}
-		}
-	});
-
-	this.on('destroy', function () {
-		// destroy DOM event listeners
-
-		for (var domEventName in that.domListeners) {
-			var fn = that.domListeners[domEventName];
-
-			that.rootElement.removeEventListener(domEventName, fn);
-		}
-
-		that.domListeners = {};
-	});
+	// Destroy DOM event listeners on destroy
+	this.on('destroy', domEvents.destroy);
 };
