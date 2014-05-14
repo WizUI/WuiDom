@@ -528,11 +528,10 @@ WuiDom.prototype.getStyle = function (property) {
 WuiDom.prototype.getComputedStyle = function (property) {
 	var computedStyle = window.getComputedStyle(this.rootElement);
 	if (!computedStyle) {
-		return undefined;
+		return null;
 	}
 
-	var cssValue = computedStyle.getPropertyCSSValue(property);
-	return cssValue ? cssValue.cssText : undefined;
+	return computedStyle.getPropertyValue(property);
 };
 
 

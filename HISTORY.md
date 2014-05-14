@@ -1,5 +1,17 @@
 # Release history
 
+## v0.3.3
+
+### Mouse or finger? I'll take them all
+For a better support of both and for the upcoming desktop browsers supporting both we no longer choose one
+or the other when requiring WuiDom, but make the right choice when getting the events instead.
+This possibly mean that a user should be able to switch between using his finger or his mouse.
+
+### You have some style, let me see it
+The `getComputedCSSStyle` were using `getPropertyValue` which is not supported by all browsers.
+Using directly `getComputedStyle` instead, which return the same as the `cssText` wanted from `getComputedCSSStyle`.
+
+
 ## v0.3.2
 
 ### Don't you know, I just told you so
