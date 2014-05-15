@@ -119,7 +119,7 @@ WuiDom.prototype.assign = function (tagName, options) {
  * Return the name of the WuiDom given on creation
  * @returns {String}
  */
-WuiDom.prototype.getName = function () {
+WuiDom.prototype.getWuiName = function () {
 	return this._name;
 };
 

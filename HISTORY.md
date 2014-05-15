@@ -1,6 +1,6 @@
 # Release history
 
-##vNext
+## vNext
 
 ### Tell me when you are done, not before
 The emission of the events `'show'` and '`hide'` will now happened when the actions are done.
