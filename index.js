@@ -61,7 +61,7 @@ function WuiDom(tagName, options) {
 	this._currentTextContent = null;
 	this.rootElement = null;
 	this._text = null;
-	this._name = null;
+	this._name = '';
 	this._childrenList = [];
 	this._childrenMap = {};
 	this._contentType = cType.EMPTY;
@@ -113,6 +113,16 @@ WuiDom.prototype.assign = function (tagName, options) {
 
 	return this.rootElement;
 };
+
+
+/**
+ * Return the name of the WuiDom given on creation
+ * @returns {String}
+ */
+WuiDom.prototype.getWuiName = function () {
+	return this._name;
+};
+
 
 /**
  * @param {WuiDom|String} child
@@ -793,18 +803,18 @@ WuiDom.prototype.hideMethod = function () {
  * @param {*} data
  */
 WuiDom.prototype.show = function (data) {
-	this.emit('show', data);
 	this._elementIsVisible = true;
 	this.showMethod();
+	this.emit('show', data);
 };
 
 /**
  * @param {*} data
  */
 WuiDom.prototype.hide = function (data) {
-	this.emit('hide', data);
 	this._elementIsVisible = false;
 	this.hideMethod();
+	this.emit('hide', data);
 };
 
 /**

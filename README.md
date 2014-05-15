@@ -254,6 +254,15 @@ The method will return a copy of the children list.
 Using it can help to iterate through elements easily for specific task.
 
 
+#### getWuiName
+
+Calling the method:
+
+```javascript
+    var myComponentName = myContainer.getWuiName();
+```
+This method will return the name of the WuiDom given at the creation.
+
 
 #### getChild
 
