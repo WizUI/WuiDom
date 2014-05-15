@@ -1,5 +1,14 @@
 # Release history
 
+##vNext
+
+### Tell me when you are done, not before
+The emission of the events `'show'` and '`hide'` will now happened when the actions are done.
+
+### What's your name?
+Added a method to get the name given to the WuiDom.
+
+
 ## v0.3.3
 
 ### Mouse or finger? I'll take them all
