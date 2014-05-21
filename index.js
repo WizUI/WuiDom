@@ -520,7 +520,7 @@ WuiDom.prototype.setStyles = function (map) {
  * @param {String} property
  */
 WuiDom.prototype.unsetStyle = function (property) {
-	this.rootElement.style[property] = null;
+	this.rootElement.style[property] = '';
 };
 
 /**
