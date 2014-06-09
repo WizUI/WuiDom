@@ -337,6 +337,12 @@ Calls the `showMethod` and emits a 'show' event.
 ##### hide
 Calls the `hideMethod` and emits a 'hide' event.
 
+##### toggle
+Will call `hide` or `show` depending of the visibility status.
+Receive a boooean as first argument to force the display if needed.
+- `true` to show
+- `false` to hide
+
 ##### isVisible
 Returns the current visibility status of the wuiDom object.
 

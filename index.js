@@ -800,21 +800,44 @@ WuiDom.prototype.hideMethod = function () {
 };
 
 /**
- * @param {*} data
+ * @param {*} [data]
  */
 WuiDom.prototype.show = function (data) {
+	if (this._elementIsVisible) {
+		return;
+	}
 	this._elementIsVisible = true;
 	this.showMethod();
 	this.emit('show', data);
 };
 
 /**
- * @param {*} data
+ * @param {*} [data]
  */
 WuiDom.prototype.hide = function (data) {
+	if (!this._elementIsVisible) {
+		return;
+	}
 	this._elementIsVisible = false;
 	this.hideMethod();
 	this.emit('hide', data);
+};
+
+/**
+ * Toggle the visibility of the WuiDom
+ * @param {Boolean} [shouldShow]
+ * @param {*} [data]
+ */
+WuiDom.prototype.toggle = function (shouldShow, data) {
+	if (typeof shouldShow !== 'boolean') {
+		return this.toggle(!this._elementIsVisible, data);
+	}
+
+	if (shouldShow) {
+		this.show(data);
+	} else  {
+		this.hide(data);
+	}
 };
 
 /**
