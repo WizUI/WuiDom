@@ -802,25 +802,25 @@ WuiDom.prototype.hideMethod = function () {
 /**
  * @param {*} [data]
  */
-WuiDom.prototype.show = function (data) {
+WuiDom.prototype.show = function () {
 	if (this._elementIsVisible) {
 		return;
 	}
 	this._elementIsVisible = true;
 	this.showMethod();
-	this.emit('show', data);
+	this.emit('show');
 };
 
 /**
  * @param {*} [data]
  */
-WuiDom.prototype.hide = function (data) {
+WuiDom.prototype.hide = function () {
 	if (!this._elementIsVisible) {
 		return;
 	}
 	this._elementIsVisible = false;
 	this.hideMethod();
-	this.emit('hide', data);
+	this.emit('hide');
 };
 
 /**
@@ -828,15 +828,15 @@ WuiDom.prototype.hide = function (data) {
  * @param {Boolean} [shouldShow]
  * @param {*} [data]
  */
-WuiDom.prototype.toggle = function (shouldShow, data) {
-	if (typeof shouldShow !== 'boolean') {
-		return this.toggle(!this._elementIsVisible, data);
+WuiDom.prototype.toggle = function (shouldShow) {
+	if (arguments.length === 0) {
+		return this.toggle(!this._elementIsVisible);
 	}
 
 	if (shouldShow) {
-		this.show(data);
+		this.show();
 	} else  {
-		this.hide(data);
+		this.hide();
 	}
 };
 
