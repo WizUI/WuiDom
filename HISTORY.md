@@ -1,12 +1,31 @@
 # Release history
 
-## vNext
+## v0.4.0
 
 ### Tell me when you are done, not before
 The emission of the events `'show'` and '`hide'` will now happened when the actions are done.
 
 ### What's your name?
-Added a method to get the name given to the WuiDom.
+Added the method `getWuiName` to get the name given to the WuiDom.
+
+### Controlling your visibility, the ninja way
+Added the method `toggleDisplay` to be able to switch visibility.
+The method can also receive a boolean as argument to avoid complicated code for a hide/show logic.
+```javascript
+if (shouldDisplay) {
+    myDiv.show();
+} else {
+    myDiv.hide();
+}
+```
+Now becomes:
+```javascript
+myDiv.toggle(shouldDisplay);
+```
+
+### No more data for your eyes
+:warning: `show` and `hide` methods were used to be able to pass data through the event.
+ **This is no longer the case.**
 
 
 ## v0.3.3

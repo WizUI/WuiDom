@@ -1,4 +1,7 @@
 /**
+ * @module domEvents
+ */
+/**
  * Mouse event lock timer. Set to 0 when not locked.
  * 
  * Note: This lock is required to overcome an issue with touch and mouse event compatibility across

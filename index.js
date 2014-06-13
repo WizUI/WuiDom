@@ -50,7 +50,6 @@ function createHtmlElement(tagName, options) {
 
 /**
  * @constructor
- * @alias module:WuiDom
  * @augments EventEmitter
  * @param {String} tagName
  * @param {Object} [options]
@@ -800,21 +799,44 @@ WuiDom.prototype.hideMethod = function () {
 };
 
 /**
- * @param {*} data
+ * @param {*} [data]
  */
-WuiDom.prototype.show = function (data) {
+WuiDom.prototype.show = function () {
+	if (this._elementIsVisible) {
+		return;
+	}
 	this._elementIsVisible = true;
 	this.showMethod();
-	this.emit('show', data);
+	this.emit('show');
 };
 
 /**
- * @param {*} data
+ * @param {*} [data]
  */
-WuiDom.prototype.hide = function (data) {
+WuiDom.prototype.hide = function () {
+	if (!this._elementIsVisible) {
+		return;
+	}
 	this._elementIsVisible = false;
 	this.hideMethod();
-	this.emit('hide', data);
+	this.emit('hide');
+};
+
+/**
+ * Toggle the visibility of the WuiDom
+ * @param {Boolean} [shouldShow]
+ * @param {*} [data]
+ */
+WuiDom.prototype.toggleDisplay = function (shouldShow) {
+	if (arguments.length === 0) {
+		return this.toggle(!this._elementIsVisible);
+	}
+
+	if (shouldShow) {
+		this.show();
+	} else  {
+		this.hide();
+	}
 };
 
 /**
