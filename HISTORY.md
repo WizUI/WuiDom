@@ -9,7 +9,7 @@ The emission of the events `'show'` and '`hide'` will now happened when the acti
 Added the method `getWuiName` to get the name given to the WuiDom.
 
 ### Controlling your visibility, the ninja way
-Added the method `toggle` to be able to switch visibility.
+Added the method `toggleDisplay` to be able to switch visibility.
 The method can also receive a boolean as argument to avoid complicated code for a hide/show logic.
 ```javascript
 if (shouldDisplay) {

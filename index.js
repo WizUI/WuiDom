@@ -50,7 +50,6 @@ function createHtmlElement(tagName, options) {
 
 /**
  * @constructor
- * @alias module:WuiDom
  * @augments EventEmitter
  * @param {String} tagName
  * @param {Object} [options]
@@ -828,7 +827,7 @@ WuiDom.prototype.hide = function () {
  * @param {Boolean} [shouldShow]
  * @param {*} [data]
  */
-WuiDom.prototype.toggle = function (shouldShow) {
+WuiDom.prototype.toggleDisplay = function (shouldShow) {
 	if (arguments.length === 0) {
 		return this.toggle(!this._elementIsVisible);
 	}

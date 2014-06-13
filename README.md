@@ -337,9 +337,9 @@ Calls the `showMethod` and emits a 'show' event.
 ##### hide
 Calls the `hideMethod` and emits a 'hide' event.
 
-##### toggle
+##### toggleDisplay
 Will call `hide` or `show` depending of the visibility status.
-Receive a boolean as argument to force the display if needed.
+Can receive a boolean as argument to force the display.
 - `true` to show
 - `false` to hide
 
