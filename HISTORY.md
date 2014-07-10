@@ -1,5 +1,19 @@
 # Release history
 
+## vNEXT
+
+### Back to the source
+The use of setting a function and timer for `setText` and `setHtml` disappeared long time ago.
+Perhaps because of the arrival of (Tomes)[https://github.com/Wizcorp/node-tomes] and `bindToTome`.
+This is why from now on, those 2 methods will do simply what they have to do.
+
+
+### Assign no more
+:warning: The `assign` method is now deprecated.
+Since v0.2.0 you can _assign_ from the constructor.
+It's time to move on.
+
+
 ## v0.4.0
 
 ### Tell me when you are done, not before
