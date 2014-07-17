@@ -20,7 +20,7 @@ if (shouldDisplay) {
 ```
 Now becomes:
 ```javascript
-myDiv.toggle(shouldDisplay);
+myDiv.toggleDisplay(shouldDisplay);
 ```
 
 ### No more data for your eyes
