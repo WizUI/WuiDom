@@ -50,31 +50,38 @@ You can read more about the WuiImage documentation [here](https://github.com/Wiz
 
 ### Creating a new WuiDom element
 
-There are a few ways to create a WuiDom element. The first, and easiest, way is to create a
-WuiDom element is to use the createChild method. Another way to create a WuiDom is
-to use the WuiDom constructor and use the assign function, which is more useful for creating the
+There are a few ways to create a WuiDom element.
+The first, and easiest, way is to create a WuiDom element is to use the createChild method.
+Another way to create a WuiDom is to use the WuiDom constructor, which is more useful for creating the
 first WuiDom element on a page.
 
 
-#### Creating the first WuiDom element on a page
 
-Example:
+#### Using the constructor
+
+It takes an HTML tag and an object map for options.
+Valid options include className, text, attr (an object of HTML attributes, user-defined) and the option 'hidden',
+to allow the element to not be immediately displayed.
+
+Each WuiDom object represents an HTML element.
+The constructor will tell the WuiDom element which HTML element it is representing.
 
 ```javascript
-var htmlElement = document.querySelector('.someClass');
-var newWuiElement = new WuiDom(htmlElement);
+var container = new WuiDom('div', { className: 'container' });
 ```
 
-In the above example, we see how we might create a new WuiDom object on a page called examplePage.
-Please note that the page does not always need to be loaded when creating a new WuiDom element.
-If you have a sub-component, it is better to pass in a WuiDom element.
-After that we create a new WuiDom element by calling the constructor.
+You can also give an DOM element as first arguments.
 
-The constructor for WuiDom should not need to be called in most cases, as it is already done
-for you by WuiDom.createChild(). In this case, we are calling the
-constructor so that the new instance can be assigned directly to the existing HTML element.
-Once an initial WuiDom element exists, we should use it to create any other new WuiDom elements.
+```javascript
+var htmlElement = document.querySelector('#main');
+var main = new WuiDom(htmlElement);
+```
+
+Here an existing HTML element is been attached to a new instance of WuiDom.
+It's usually the method used to create the parent WuiDom of a web application.
+Once an initial WuiDom element exists, we should be able to use it to create any other new WuiDom elements.
 This allows for pages to be built iteratively.
+
 
 #### createChild
 
@@ -173,8 +180,7 @@ Calling the method:
 
 ```javascript
 var ListElement = function(textValue) {
-    WuiDom.call(this);
-    this.assign('li', { text: textValue });
+    WuiDom.call(this, 'li', { text: textValue });
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -197,8 +203,7 @@ Calling the method:
 
 ```javascript
 var ListElement = function(textValue) {
-    WuiDom.call(this);
-    this.assign('li', { text: textValue });
+    WuiDom.call(this, 'li', { text: textValue });
 }
 
 var ulElement = pageElement.createChild('ul');
@@ -222,8 +227,7 @@ Calling the method:
 parentElement.insertChildBefore(newChildElement, elementToInsertBefore);
 
 var ListElement = function(textValue) {
-    WuiDom.call(this);
-    this.assign('li', { text: textValue });
+    WuiDom.call(this, 'li', { text: textValue });
 };
 var ulElement = pageElement.createChild('ul');
 ulElement.createChild(new ListElement('First child'));
@@ -478,23 +482,6 @@ In this example, we define a button called MyButton. Then call the WuiDom constr
 with arguments to tell the element is a 'div' with a css class and a text.
 
 
-#### assign
-
-The assign method is called by the constructor when this one receive arguments.
-It takes an HTML tag and an object map for options.
-Valid options include className, text, attr (an object of HTML attributes, user-defined) and the option 'hidden',
-to allow the element to not be immediately displayed.
-
-Each WuiDom object represents an HTML element.
-The job of the assign method is to tell the WuiDom element which HTML element it is representing.
-
-Calling the method:
-
-```javascript
-newElement.assign(tagName, options)
-```
-
-
 #### setText
 
 The setText method is used to set the inner text of a WuiDom element. The initial text value of a
@@ -541,8 +528,6 @@ childElement.setStyle(property, value);
 Here the method will take a single style property and set its value. No validation is done on the
 parameters, so the user should be careful to not set invalid styles with this method.
 
-**Note** These style and class method should only be called once the assign, createChild or
-createElement method has been called.
 
 #### setStyles
 

@@ -13,13 +13,14 @@ var cType = {
 	HTML: 'html'
 };
 
+/* jshint -W079 */
 var document = window.document;
-
+/* jshint +W079 */
 
 /**
  * HTML creation helper
  * @private
- * @param {String} tagName
+ * @param {string} tagName
  * @param {Object} [options]
  */
 function createHtmlElement(tagName, options) {
@@ -51,7 +52,7 @@ function createHtmlElement(tagName, options) {
 /**
  * @constructor
  * @augments EventEmitter
- * @param {String} tagName
+ * @param {string} tagName
  * @param {Object} [options]
  */
 function WuiDom(tagName, options) {
@@ -66,7 +67,7 @@ function WuiDom(tagName, options) {
 	this._contentType = cType.EMPTY;
 	this._parent = null;
 	if (tagName) {
-		this.assign(tagName, options);
+		this._assign(tagName, options);
 	}
 }
 
@@ -78,10 +79,11 @@ module.exports = WuiDom;
  * Makes the given element the rootElement for this component.
  * If instead of an HTML element, a tagName and options are given, the element is created and assigned.
  * The logic for HTML creation follows the rules of the private createHtmlElement function.
- * @param {String} tagName
+ * @param {string} tagName
  * @param {Object} [options]
+ * @private
  */
-WuiDom.prototype.assign = function (tagName, options) {
+WuiDom.prototype._assign = function (tagName, options) {
 	if (this.rootElement) {
 		throw new Error('WuiDom has already an element assigned');
 	}
@@ -113,10 +115,18 @@ WuiDom.prototype.assign = function (tagName, options) {
 	return this.rootElement;
 };
 
+/**
+ * @deprecated
+ * @param {string} tagName
+ * @param {Object} [options]
+ */
+WuiDom.prototype.assign = function (tagName, options) {
+	this._assign(tagName, options);
+};
 
 /**
  * Return the name of the WuiDom given on creation
- * @returns {String}
+ * @returns {string}
  */
 WuiDom.prototype.getWuiName = function () {
 	return this._name;
@@ -187,7 +197,6 @@ WuiDom.prototype.getParent = function () {
 
 
 /**
- *
  * @param {WuiDom} newChild
  * @returns {WuiDom}
  */
@@ -220,7 +229,7 @@ WuiDom.prototype.appendChild = function (newChild) {
  * Creates an instance of WuiDom and assigns a newly built HTML element to it,
  * following the logic of the private createHtmlElement function. It is then appended to
  * this component.
- * @param {String} tagName
+ * @param {string} tagName
  * @param {Object} [options]
  * @returns {WuiDom}
  */
@@ -316,84 +325,29 @@ WuiDom.prototype.getChildren = function () {
 };
 
 /**
- * @param {String} childName
+ * @param {string} childName
  * @returns {WuiDom|undefined}
  */
 WuiDom.prototype.getChild = function (childName) {
 	return this._childrenMap[childName];
 };
 
-
 /**
- * Timers (for internal use)
- * @param {String} id
+ * Clean text or html content
  * @private
  */
-WuiDom.prototype._clearTimer = function (id) {
-	if (!this.timers) {
-		return;
-	}
-
-	var handle = this.timers[id];
-
-	if (handle) {
-		window.clearTimeout(handle);
-
-		delete this.timers[id];
-	}
+WuiDom.prototype._clearLinearContent = function () {
+	this._text = null;
+	this._currentTextContent = null;
+	this.rootElement.innerHTML = "";
 };
 
 /**
- * @deprecated
- * @param id
+ * Set the html content of the WuiDom.
+ * Be aware this will wipe out WuiDom child or text content.
+ * @param {string} value
  */
-WuiDom.prototype.clearTimer = function (id) {
-	console.warn("clearTimer is deprecated");
-	this._clearTimer(id);
-};
-
-/**
- * Timers (for internal use)
- * @param {String} id
- * @param {Function} fn
- * @param {Number} interval
- * @private
- */
-WuiDom.prototype._setTimer = function (id, fn, interval) {
-	this._clearTimer(id);
-
-	this.timers = this.timers || {};
-
-	var handle = window.setTimeout(function (that) {
-		delete that.timers[handle];
-
-		fn.call(that);
-	}, interval, this);
-
-	this.timers[id] = handle;
-};
-
-/**
- * @deprecated
- * @param id
- * @param fn
- * @param interval
- */
-WuiDom.prototype.setTimer = function (id, fn, interval) {
-	console.warn("setTimer is deprecated");
-	this._setTimer(id, fn, interval);
-};
-
-
-/**
- * Content: html and text
- * - if value is a function, execute it and use the return value as text
- * - if an interval is given, repeat the given function every N msec until setHtml is called again, or the component is destroyed
- * - if value is not a function, use its string representation as html string
- * @param {String|Function} value
- * @param {Number} [interval]
- */
-WuiDom.prototype.setHtml = function (value, interval) {
+WuiDom.prototype.setHtml = function (value) {
 	// Clean if contain children
 	if (this._contentType === cType.WUI) {
 		this._destroyChildren();
@@ -404,46 +358,16 @@ WuiDom.prototype.setHtml = function (value, interval) {
 		this._clearLinearContent();
 	}
 
-	if (typeof value === 'function') {
-		var fn = value;
-		value = fn();
-
-		if (interval) {
-			this._setTimer('content', function () {
-				this.setHtml(fn, interval);
-			}, interval);
-		} else {
-			this._clearTimer('content');
-		}
-	} else {
-		this._clearTimer('content');
-	}
 	this.rootElement.innerHTML = value;
 	this._contentType = cType.HTML;
 };
 
 /**
- * Clean text or html content
- * @private
+ * Set a textNode as a child and inject the string value
+ * Be aware this will wipe out WuiDom child or html content.
+ * @param {string} value
  */
-WuiDom.prototype._clearLinearContent = function () {
-	this._clearTimer('content');
-	this._text = null;
-	this._currentTextContent = null;
-	this.rootElement.innerHTML = "";
-};
-
-/**
- * - if value is a function, execute it and use the return value as text
- * - if an interval is given, repeat the given function every N msec until setText is called again, or the component is destroyed
- * - if value is not a function, use its string representation as text
- *
- * Current implementation allow to add children AND edit a text.
- * Might be change in the future to have a behavior closer to setHtml
- * @param {String|Function} value
- * @param {Number} [interval]
- */
-WuiDom.prototype.setText = function (value, interval) {
+WuiDom.prototype.setText = function (value) {
 	// Clean if contain children
 	if (this._contentType === cType.WUI) {
 		this._destroyChildren();
@@ -460,21 +384,6 @@ WuiDom.prototype.setText = function (value, interval) {
 
 	value = value.valueOf();
 
-	if (typeof value === 'function') {
-		var fn = value;
-		value = fn();
-
-		if (interval) {
-			this._setTimer('content', function () {
-				this.setText(fn, interval);
-			}, interval);
-		} else {
-			this._clearTimer('content');
-		}
-	} else {
-		this._clearTimer('content');
-	}
-
 	if (!this._text) {
 		this._text = document.createTextNode("");
 		this.rootElement.appendChild(this._text);
@@ -488,7 +397,7 @@ WuiDom.prototype.setText = function (value, interval) {
 };
 
 /**
- * @returns {String}
+ * @returns {string}
  */
 WuiDom.prototype.getText = function () {
 	return this._currentTextContent;
@@ -496,9 +405,9 @@ WuiDom.prototype.getText = function () {
 
 
 /**
- * style accessors
- * @param {String} property
- * @param {String|Number} value
+ * Style accessors
+ * @param {string} property
+ * @param {string|number} value
  */
 WuiDom.prototype.setStyle = function (property, value) {
 	this.rootElement.style[property] = value;
@@ -516,23 +425,23 @@ WuiDom.prototype.setStyles = function (map) {
 };
 
 /**
- * @param {String} property
+ * @param {string} property
  */
 WuiDom.prototype.unsetStyle = function (property) {
 	this.rootElement.style[property] = '';
 };
 
 /**
- * @param {String} property
- * @returns {String}
+ * @param {string} property
+ * @returns {string}
  */
 WuiDom.prototype.getStyle = function (property) {
 	return this.rootElement.style[property];
 };
 
 /**
- * @param {String} property
- * @returns {String}
+ * @param {string} property
+ * @returns {string}
  */
 WuiDom.prototype.getComputedStyle = function (property) {
 	var computedStyle = window.getComputedStyle(this.rootElement);
@@ -610,8 +519,8 @@ WuiDom.prototype.getClassNames = function () {
 };
 
 /**
- * @param {String} className
- * @returns {Boolean}
+ * @param {string} className
+ * @returns {boolean}
  */
 WuiDom.prototype.hasClassName = function (className) {
 	// returns true/false depending on the given className being present
@@ -666,7 +575,7 @@ WuiDom.prototype.delClassNames = function (classNames) {
 
 /**
  * Finding sub-elements
- * @param {String} selector
+ * @param {string} selector
  * @returns {Node|null}
  */
 WuiDom.prototype.query = function (selector) {
@@ -686,7 +595,7 @@ WuiDom.prototype.query = function (selector) {
 };
 
 /**
- * @param {String} selector
+ * @param {string} selector
  * @returns {NodeList}
  */
 WuiDom.prototype.queryAll = function (selector) {
@@ -769,14 +678,6 @@ WuiDom.prototype.destroy = function () {
 		this.rootElement = null;
 	}
 
-	// drop any built-in timers
-
-	if (this.timers) {
-		for (var id in this.timers) {
-			this._clearTimer(id);
-		}
-	}
-
 	// drop any remaining event listeners
 
 	this.removeAllListeners();
@@ -824,7 +725,7 @@ WuiDom.prototype.hide = function () {
 
 /**
  * Toggle the visibility of the WuiDom
- * @param {Boolean} [shouldShow]
+ * @param {boolean} [shouldShow]
  * @param {*} [data]
  */
 WuiDom.prototype.toggleDisplay = function (shouldShow) {
@@ -840,7 +741,7 @@ WuiDom.prototype.toggleDisplay = function (shouldShow) {
 };
 
 /**
- * @returns {Boolean}
+ * @returns {boolean}
  */
 WuiDom.prototype.isVisible = function () {
 	return this._elementIsVisible;
