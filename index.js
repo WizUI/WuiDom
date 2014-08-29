@@ -829,7 +829,7 @@ WuiDom.prototype.hide = function () {
  */
 WuiDom.prototype.toggleDisplay = function (shouldShow) {
 	if (arguments.length === 0) {
-		return this.toggle(!this._elementIsVisible);
+		shouldShow = !this._elementIsVisible;
 	}
 
 	if (shouldShow) {
