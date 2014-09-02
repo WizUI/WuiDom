@@ -134,14 +134,18 @@ WuiDom.prototype.getWuiName = function () {
 
 
 /**
- * @param {WuiDom|String} child
+ * @param {WuiDom|string} child
  * @returns {WuiDom} - oldChild
  */
 WuiDom.prototype.removeChild = function (child) {
-	if (typeof child === 'string' && this._childrenMap[child]) {
+	var isWuiDom = child instanceof WuiDom;
+
+	if (!isWuiDom) {
 		child = this._childrenMap[child];
-	} else if (typeof child === 'string') {
-		throw new Error('WuiDom: Given name is not a current child');
+
+		if (!child) {
+			throw new Error('WuiDom: Given name is not a current child');
+		}
 	}
 
 	var siblingIndex = this._childrenList.indexOf(child);
