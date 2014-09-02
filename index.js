@@ -744,10 +744,25 @@ WuiDom.prototype.toggleDisplay = function (shouldShow) {
 };
 
 /**
- * @returns {boolean}
+ * Returns the visibility status of a WuiDom.
+ * The visibility status is based on the show and hide methods and
+ * if the Dom has been added to the document.
+ * It is also possible to get the visibility based on its parent tree.
+ * @param {Boolean} [checkTree] - Go up the tree
+ * @returns {Boolean}
  */
-WuiDom.prototype.isVisible = function () {
-	return this._elementIsVisible;
+WuiDom.prototype.isVisible = function (checkTree) {
+	// If the WuiDom has been hidden
+	if (!this._elementIsVisible) {
+		return false;
+	}
+
+	// If asked check the parent's visibility
+	if (checkTree && this._parent) {
+		return this._parent.isVisible(true);
+	}
+
+	return true;
 };
 
 
