@@ -401,6 +401,9 @@ It is important to note that the function provided for argument 2 is executed ev
 data change occurs, regardless of how significant the change is. Because of this, it's often best to
 provide concise, efficient update functions.
 
+If you don't provide a second argument, a default function will call the setText method on the binded 
+element with the tome value.
+
 #### Events
 
 WuiDom inherits from EventEmitter, and as such it allows the programmer to define and catch their
