@@ -277,7 +277,7 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	}
 
 	newChild._setParent(this);
-	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
+	this.rootElement.insertBefore(newChild.rootElement, newNextSibling && newNextSibling.rootElement);
 
 	// touch events are known to get lost, so rebind them
 	newChild.rebindTouchListeners();
@@ -488,12 +488,16 @@ function uniqueClassNames(str) {
 	return Object.keys(classNameMap).join(' ');
 }
 
-
+/**
+ * Removes the (unparsed) class names in args from `baseList`
+ * `baseList` is required to be an array (not a string)
+ * `args` is expected to be an arguments object or array
+ * @param {string[]} baseList
+ * @param {Object|string[]} args
+ * @returns {string}
+ * @private
+ */
 function removeClassNames(baseList, args) {
-	// removes the (unparsed) class names in args from baseList
-	// baseList is required to be an array (not a string)
-	// args is expected to be an arguments object or array
-
 	for (var i = 0, len = args.length; i < len; i += 1) {
 		var parsed = parseClassNames(args[i]);
 
@@ -510,30 +514,27 @@ function removeClassNames(baseList, args) {
 }
 
 /**
+ * Returns an array of all class names
  * @returns {Array}
  */
 WuiDom.prototype.getClassNames = function () {
-	// returns an array of all class names
-
 	return parseClassNames(this.rootElement.className);
 };
 
 /**
+ * Returns true/false depending on the given className being present
  * @param {string} className
  * @returns {boolean}
  */
 WuiDom.prototype.hasClassName = function (className) {
-	// returns true/false depending on the given className being present
-
 	return this.getClassNames().indexOf(className) !== -1;
 };
 
 /**
+ * Allows for adding multiples in separate arguments, space separated or a mix
  * @param {...String} className
  */
 WuiDom.prototype.setClassNames = function (className) {
-	// allows for adding multiples in separate arguments, space separated or a mix
-
 	if (arguments.length > 1) {
 		className = joinArgumentsAsClassNames('', arguments);
 	}
@@ -542,25 +543,28 @@ WuiDom.prototype.setClassNames = function (className) {
 };
 
 /**
+ * Allows for adding multiples in separate arguments, space separated or a mix
  * @param {...String} classNames
  */
 WuiDom.prototype.addClassNames = function (classNames) {
-	// allows for adding multiples in separate arguments, space separated or a mix
-
 	classNames = joinArgumentsAsClassNames(this.rootElement.className, arguments);
 	this.rootElement.className = uniqueClassNames(classNames);
 };
 
 /**
+ * Adds all classNames in addList and removes the ones in delList
  * @param {Array} delList
  * @param {Array} addList
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
-	// adds all classNames in addList and removes the ones in delList
+	// remove delList from the current
+	var classNames = removeClassNames(this.getClassNames(), delList);
 
-	var current = parseClassNames(this.rootElement.className);
+	// join the addList to the previous result
+	classNames = joinArgumentsAsClassNames(classNames, addList);
 
-	this.rootElement.className = joinArgumentsAsClassNames(removeClassNames(current, delList), addList);
+	// make sure classes are unique
+	this.rootElement.className = uniqueClassNames(classNames);
 };
 
 /**
@@ -630,7 +634,6 @@ WuiDom.prototype._destroyChildren = function () {
  * Emitting 'cleared' so extra cleanup can be done
  */
 WuiDom.prototype.clearContent = function () {
-
 	switch (this._contentType) {
 	case cType.HTML:
 	case cType.TEXT:
@@ -775,7 +778,6 @@ WuiDom.prototype.rebindTouchListeners = function () {
  * @param {Function} cb - Update function. Receive current and old value
  */
 WuiDom.prototype.bindToTome = function (tome, cb) {
-
 	var self = this;
 
 	if (!cb) {
