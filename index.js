@@ -277,7 +277,7 @@ WuiDom.prototype.insertChildBefore = function (newChild, newNextSibling) {
 	}
 
 	newChild._setParent(this);
-	this.rootElement.insertBefore(newChild.rootElement, newNextSibling.rootElement);
+	this.rootElement.insertBefore(newChild.rootElement, newNextSibling && newNextSibling.rootElement);
 
 	// touch events are known to get lost, so rebind them
 	newChild.rebindTouchListeners();
