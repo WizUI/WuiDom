@@ -558,9 +558,14 @@ WuiDom.prototype.addClassNames = function (classNames) {
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
 	// adds all classNames in addList and removes the ones in delList
 
-	var current = parseClassNames(this.rootElement.className);
+	// remove delList from the current
+	var classNames = removeClassNames(this.getClassNames(), delList);
 
-	this.rootElement.className = joinArgumentsAsClassNames(removeClassNames(current, delList), addList);
+	// join the addList to the previous result
+	classNames = joinArgumentsAsClassNames(classNames, addList);
+
+	// make sure classes are unique
+	this.rootElement.className = uniqueClassNames(classNames);
 };
 
 /**
