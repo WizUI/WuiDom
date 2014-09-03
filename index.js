@@ -532,19 +532,20 @@ WuiDom.prototype.hasClassName = function (className) {
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...String} className
+ * @param {...string} className
  */
 WuiDom.prototype.setClassNames = function (className) {
 	if (arguments.length > 1) {
 		className = joinArgumentsAsClassNames('', arguments);
 	}
 
-	this.rootElement.className = className;
+	this.rootElement.className = uniqueClassNames(className);
 };
+
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...String} classNames
+ * @param {...string} classNames
  */
 WuiDom.prototype.addClassNames = function (classNames) {
 	classNames = joinArgumentsAsClassNames(this.rootElement.className, arguments);
@@ -553,8 +554,8 @@ WuiDom.prototype.addClassNames = function (classNames) {
 
 /**
  * Adds all classNames in addList and removes the ones in delList
- * @param {Array} delList
- * @param {Array} addList
+ * @param {string[]} delList
+ * @param {string[]} addList
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
 	// remove delList from the current
@@ -569,11 +570,39 @@ WuiDom.prototype.replaceClassNames = function (delList, addList) {
 
 /**
  * Allows for deleting multiples in separate arguments, space separated or a mix
- * @param {...String} classNames
+ * @param {...string} classNames
  */
 WuiDom.prototype.delClassNames = function (classNames) {
-	classNames = classNames;
-	this.rootElement.className = removeClassNames(this.getClassNames(), arguments);
+	classNames = removeClassNames(this.getClassNames(), arguments);
+	this.rootElement.className = classNames;
+};
+
+
+/**
+ * Toggle the presence of a list of classNames
+ * Can enforce the addition or deletion with the second argument
+ * @param {string[]} classNames
+ * @param {Boolean} [shouldAdd]
+ */
+WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
+	classNames = joinArgumentsAsClassNames('', classNames);
+
+	if (arguments.length > 1) {
+		if (shouldAdd) {
+			this.addClassNames(classNames);
+		} else {
+			this.delClassNames(classNames);
+		}
+		return;
+	}
+
+	var currents = this.getClassNames();
+
+	var addList = classNames.filter(function (className) {
+		return currents.indexOf(className) === -1;
+	});
+
+	this.replaceClassNames(classNames, addList);
 };
 
 
