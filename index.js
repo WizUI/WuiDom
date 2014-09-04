@@ -611,47 +611,6 @@ WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
 
 
 /**
- * Finding sub-elements
- * @param {string} selector
- * @returns {Node|null}
- */
-WuiDom.prototype.query = function (selector) {
-	var elm;
-
-	if (this._queryCache) {
-		elm = this._queryCache[selector];
-	} else {
-		this._queryCache = {};
-	}
-
-	if (!elm) {
-		elm = this._queryCache[selector] = this.rootElement.querySelector(selector);
-	}
-
-	return elm;
-};
-
-/**
- * @param {string} selector
- * @returns {NodeList}
- */
-WuiDom.prototype.queryAll = function (selector) {
-	var elm;
-
-	if (this._queryAllCache) {
-		elm = this._queryAllCache[selector];
-	} else {
-		this._queryAllCache = {};
-	}
-
-	if (!elm) {
-		elm = this._queryAllCache[selector] = this.rootElement.querySelectorAll(selector);
-	}
-
-	return elm;
-};
-
-/**
  * Destroy all children of a WuiDom
  * @private
  */
@@ -687,11 +646,6 @@ WuiDom.prototype.clearContent = function () {
  */
 WuiDom.prototype.destroy = function () {
 	this.emit('destroy');
-
-	// destroy caches
-
-	delete this._queryCache;
-	delete this._queryAllCache;
 
 	// clean siblings
 
