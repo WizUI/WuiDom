@@ -134,14 +134,18 @@ WuiDom.prototype.getWuiName = function () {
 
 
 /**
- * @param {WuiDom|String} child
+ * @param {WuiDom|string} child
  * @returns {WuiDom} - oldChild
  */
 WuiDom.prototype.removeChild = function (child) {
-	if (typeof child === 'string' && this._childrenMap[child]) {
+	var isWuiDom = child instanceof WuiDom;
+
+	if (!isWuiDom) {
 		child = this._childrenMap[child];
-	} else if (typeof child === 'string') {
-		throw new Error('WuiDom: Given name is not a current child');
+
+		if (!child) {
+			throw new Error('WuiDom: Given name is not a current child');
+		}
 	}
 
 	var siblingIndex = this._childrenList.indexOf(child);
@@ -532,19 +536,20 @@ WuiDom.prototype.hasClassName = function (className) {
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...String} className
+ * @param {...string} className
  */
 WuiDom.prototype.setClassNames = function (className) {
 	if (arguments.length > 1) {
 		className = joinArgumentsAsClassNames('', arguments);
 	}
 
-	this.rootElement.className = className;
+	this.rootElement.className = uniqueClassNames(className);
 };
+
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...String} classNames
+ * @param {...string} classNames
  */
 WuiDom.prototype.addClassNames = function (classNames) {
 	classNames = joinArgumentsAsClassNames(this.rootElement.className, arguments);
@@ -553,8 +558,8 @@ WuiDom.prototype.addClassNames = function (classNames) {
 
 /**
  * Adds all classNames in addList and removes the ones in delList
- * @param {Array} delList
- * @param {Array} addList
+ * @param {string[]} delList
+ * @param {string[]} addList
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
 	// remove delList from the current
@@ -569,54 +574,41 @@ WuiDom.prototype.replaceClassNames = function (delList, addList) {
 
 /**
  * Allows for deleting multiples in separate arguments, space separated or a mix
- * @param {...String} classNames
+ * @param {...string} classNames
  */
 WuiDom.prototype.delClassNames = function (classNames) {
-	classNames = classNames;
-	this.rootElement.className = removeClassNames(this.getClassNames(), arguments);
+	classNames = removeClassNames(this.getClassNames(), arguments);
+	this.rootElement.className = classNames;
 };
 
 
 /**
- * Finding sub-elements
- * @param {string} selector
- * @returns {Node|null}
+ * Toggle the presence of a list of classNames
+ * Can enforce the addition or deletion with the second argument
+ * @param {string[]} classNames
+ * @param {Boolean} [shouldAdd]
  */
-WuiDom.prototype.query = function (selector) {
-	var elm;
+WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
+	classNames = joinArgumentsAsClassNames('', classNames);
 
-	if (this._queryCache) {
-		elm = this._queryCache[selector];
-	} else {
-		this._queryCache = {};
+	if (arguments.length > 1) {
+		if (shouldAdd) {
+			this.addClassNames(classNames);
+		} else {
+			this.delClassNames(classNames);
+		}
+		return;
 	}
 
-	if (!elm) {
-		elm = this._queryCache[selector] = this.rootElement.querySelector(selector);
-	}
+	var currents = this.getClassNames();
 
-	return elm;
+	var addList = classNames.filter(function (className) {
+		return currents.indexOf(className) === -1;
+	});
+
+	this.replaceClassNames(classNames, addList);
 };
 
-/**
- * @param {string} selector
- * @returns {NodeList}
- */
-WuiDom.prototype.queryAll = function (selector) {
-	var elm;
-
-	if (this._queryAllCache) {
-		elm = this._queryAllCache[selector];
-	} else {
-		this._queryAllCache = {};
-	}
-
-	if (!elm) {
-		elm = this._queryAllCache[selector] = this.rootElement.querySelectorAll(selector);
-	}
-
-	return elm;
-};
 
 /**
  * Destroy all children of a WuiDom
@@ -654,11 +646,6 @@ WuiDom.prototype.clearContent = function () {
  */
 WuiDom.prototype.destroy = function () {
 	this.emit('destroy');
-
-	// destroy caches
-
-	delete this._queryCache;
-	delete this._queryAllCache;
 
 	// clean siblings
 
