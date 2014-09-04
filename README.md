@@ -632,6 +632,18 @@ childElement.delClassNames('big');
 ```
 
 
+#### toggleClassNames
+
+The toggleClassNames method will switch the presence of a the given list of class names.
+Can receive a boolean as second argument to force the switch and call respectively addClassNames or delClassNames.
+
+Calling the method:
+
+```javascript
+var isRead = someFunction();
+childElement.toggleClassNames(['read'], isRead);
+```
+
 #### replaceClassNames
 
 The replaceClassNames method effectively calls addClassNames and then delClassNames,
