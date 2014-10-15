@@ -349,6 +349,8 @@ Can receive a boolean as argument to force the display.
 
 ##### isVisible
 Returns the current visibility status of the wuiDom object.
+When given `true` as argument, it will look at the ancestor tree
+to check the visibility status of them.
 
 ##### Examples
 
@@ -401,7 +403,7 @@ It is important to note that the function provided for argument 2 is executed ev
 data change occurs, regardless of how significant the change is. Because of this, it's often best to
 provide concise, efficient update functions.
 
-If you don't provide a second argument, a default function will call the setText method on the binded 
+If you don't provide a second argument, a default function will call the setText method on the binded
 element with the tome value.
 
 #### Events

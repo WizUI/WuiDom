@@ -1,5 +1,11 @@
 # Release history
 
+## VNext
+
+### Now you see me
+The method `isVisible` can now go up the tree of ancestor if it's really visible or not.
+
+
 ## v0.5.0
 
 ### Assign no more
