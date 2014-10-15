@@ -632,6 +632,18 @@ childElement.delClassNames('big');
 ```
 
 
+#### toggleClassNames
+
+The toggleClassNames method will switch the presence of a the given list of class names.
+Can receive a boolean as second argument to force the switch and call respectively addClassNames or delClassNames.
+
+Calling the method:
+
+```javascript
+var isRead = someFunction();
+childElement.toggleClassNames(['read'], isRead);
+```
+
 #### replaceClassNames
 
 The replaceClassNames method effectively calls addClassNames and then delClassNames,
@@ -641,41 +653,4 @@ Calling the method:
 
 ```javascript
 childElement.replaceClassNames(['unread'], ['read', 'stroke']);
-```
-
-#### query
-
-The query method will allow DOM queries to be performed using the [Element.querySelector][0]
-method as a base. One **important** difference is that WUI will cache the queries by selector,
-so that repeated DOM queries are avoided. The cache will remain in place until `destroy` is
-called. Query returns the first element that is a descendant of the caller (WuiDom element) and
-matches the selector, or null.
-
-**Note** that use of this method should be avoided whenever possible, because even one DOM access
-on a single-page application can be very slow and have a huge performance impact.
-Please read [here][1] for more information about DOM selectors.
-
-Calling the method:
-
-```javascript
-var foundElement = childElement.query(selector);
-```
-
-[0]: https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelector
-[1]: https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Locating_DOM_elements_using_selectors
-
-#### queryAll
-
-The queryAll method functions as the query method, except it returns **all** WuiDom elements that
-match the specified selector. This method uses a separate cache from the query method.
-
-**Note** that use of this method should be avoided whenever possible, because even one DOM access
-on a single-page application can be very slow and have a huge performance impact. This method is
-much slower than query, because it searches all descendants of childElement even after a match is
-found.
-
-Calling the method:
-
-```javascript
-var foundElementsArray = childElement.queryAll(selector);
 ```
