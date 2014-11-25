@@ -571,6 +571,19 @@ Calling the method:
 ```javascript
 childElement.getComputedStyle(property);
 ```
+
+#### getComputedStyles
+
+The getComputedStyles method will return the computed style (CSS style text) for given properties as
+separate arguments. WuiDom will return an object with the properties as key and their computed style
+as value ('undefined' if the property is not defined).
+
+Calling the method:
+
+```javascript
+childElement.getComputedStyles(property1, property2, ...);
+
+
 #### getClassNames
 
 The getClassNames function will return the class names associated with the WuiDom element.
