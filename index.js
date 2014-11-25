@@ -444,7 +444,7 @@ WuiDom.prototype.getStyle = function (property) {
 };
 
 /**
- * @param {string} property
+ * @param {string} css property (javascript notation : background-image -> backgroundImage)
  * @returns {string}
  */
 WuiDom.prototype.getComputedStyle = function (property) {
