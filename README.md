@@ -564,8 +564,8 @@ childElement.unsetStyle(property);
 #### getComputedStyle
 
 The getComputedStyle method will return the computed style (CSS style text) for a given property
-of the style element. If the property is not defined, WuiDom will return 'undefined'. The property
-should be in javascript notation (background-image -> backgroundImage).
+of the style element. If the property is not defined, WuiDom will return 'undefined'.
+The property should be in javascript notation (background-image -> backgroundImage).
 
 Calling the method:
 
@@ -577,8 +577,8 @@ childElement.getComputedStyle(property);
 
 The getComputedStyles method will return the computed style (CSS style text) for given properties as
 separate arguments. WuiDom will return an object with the properties as key and their computed style
-as value ('undefined' if the property is not defined). The properties should be in javascript notation
-(background-image -> backgroundImage).
+as value ('undefined' if the property is not defined).
+The properties should be in javascript notation (background-image -> backgroundImage).
 
 Calling the method:
 
