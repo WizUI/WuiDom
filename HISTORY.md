@@ -2,6 +2,9 @@
 
 ## VNext
 
+### Pimp my style
+A new method `getComputedStyles` allows to retrieve multiple computed style properties in one call.
+
 ### Now you see me
 The method `isVisible` can now go up the tree of ancestor if it's really visible or not.
 

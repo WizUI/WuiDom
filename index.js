@@ -444,7 +444,7 @@ WuiDom.prototype.getStyle = function (property) {
 };
 
 /**
- * @param {string} property
+ * @param {string} property - css property (javascript notation : background-image -> backgroundImage)
  * @returns {string}
  */
 WuiDom.prototype.getComputedStyle = function (property) {
@@ -456,6 +456,24 @@ WuiDom.prototype.getComputedStyle = function (property) {
 	return computedStyle.getPropertyValue(property);
 };
 
+/**
+ * @param {...string} css properties (javascript notation : background-image -> backgroundImage)
+ * @returns {Object} - an object indexed by the css properties and their computed style as value.
+ */
+WuiDom.prototype.getComputedStyles = function () {
+	var computedStyle = window.getComputedStyle(this.rootElement);
+	if (!computedStyle) {
+		return {};
+	}
+
+	var propertyValues = {};
+	for (var i = 0, len = arguments.length; i < len; i += 1) {
+		var property = arguments[i];
+		propertyValues[property] = computedStyle.getPropertyValue(property);
+	}
+
+	return propertyValues;
+};
 
 // className accessors
 
