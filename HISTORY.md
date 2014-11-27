@@ -1,6 +1,6 @@
 # Release history
 
-## VNext
+## V0.5.1
 
 ### Pimp my style
 A new method `getComputedStyles` allows to retrieve multiple computed style properties in one call.
