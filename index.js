@@ -737,7 +737,7 @@ WuiDom.prototype.hide = function () {
  * @param {*} [data]
  */
 WuiDom.prototype.toggleDisplay = function (shouldShow) {
-	if (arguments.length === 0) {
+	if (arguments.length === 0 || shouldShow === undefined) {
 		shouldShow = !this._elementIsVisible;
 	}
 
