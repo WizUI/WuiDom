@@ -1,5 +1,12 @@
 # Release history
 
+## V0.5.2
+
+### toggle the display and tell me what
+The `toggleDisplay` now returns the status of the display.
+Also fixed a bug where passing an `undefined` variable will always toggle on.
+
+
 ## V0.5.1
 
 ### Pimp my style
