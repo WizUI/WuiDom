@@ -747,7 +747,7 @@ WuiDom.prototype.toggleDisplay = function (shouldShow) {
 	} else {
 		this.hide();
 	}
-	return shouldShow;
+	return !!shouldShow;
 };
 
 /**
