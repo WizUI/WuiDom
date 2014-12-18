@@ -738,17 +738,16 @@ WuiDom.prototype.hide = function () {
  * @returns {Boolean}
  */
 WuiDom.prototype.toggleDisplay = function (shouldShow) {
-	if (arguments.length === 0 || shouldShow === undefined) {
+	if (shouldShow === undefined) {
 		shouldShow = !this._elementIsVisible;
 	}
 
 	if (shouldShow) {
 		this.show();
-		return true;
 	} else  {
 		this.hide();
-		return false;
 	}
+	return shouldShow;
 };
 
 /**
