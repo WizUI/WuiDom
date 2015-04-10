@@ -607,13 +607,8 @@ WuiDom.prototype.delClassNames = function (classNames) {
  * @param {Boolean} [shouldAdd]
  */
 WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
-	classNames = joinArgumentsAsClassNames('', classNames);
-
-	if (arguments.length > 1) {
-		if (shouldAdd === undefined) {
-			shouldAdd = !this.hasClassName(classNames);
-		}
-
+	if (shouldAdd !== undefined) {
+		classNames = joinArgumentsAsClassNames('', classNames);
 		if (shouldAdd) {
 			this.addClassNames(classNames);
 		} else {
@@ -623,7 +618,6 @@ WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
 	}
 
 	var currents = this.getClassNames();
-
 	var addList = classNames.filter(function (className) {
 		return currents.indexOf(className) === -1;
 	});
