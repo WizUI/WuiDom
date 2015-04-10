@@ -610,6 +610,10 @@ WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
 	classNames = joinArgumentsAsClassNames('', classNames);
 
 	if (arguments.length > 1) {
+		if (shouldAdd === undefined) {
+			shouldAdd = !this.hasClassName(classNames);
+		}
+
 		if (shouldAdd) {
 			this.addClassNames(classNames);
 		} else {
