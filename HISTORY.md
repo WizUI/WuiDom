@@ -1,13 +1,19 @@
 # Release history
 
-## V0.5.2
+## v0.5.3
+
+### toggle with undefined style
+The `toggleClassNames` method was partially broken.
+When second arguments, `shouldAdd`, is `undefined` it will trigger a real toggle, which is now fixed.
+
+## v0.5.2
 
 ### toggle the display and tell me what
 The `toggleDisplay` now returns the status of the display.
 Also fixed a bug where passing an `undefined` variable will always toggle on.
 
 
-## V0.5.1
+## v0.5.1
 
 ### Pimp my style
 A new method `getComputedStyles` allows to retrieve multiple computed style properties in one call.
