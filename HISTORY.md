@@ -1,13 +1,19 @@
 # Release history
 
-## V0.5.2
+## vNEXT
+
+### Kill them all, but fast
+Improvement has been made on the internal method `_destroyChildren` which should make
+the call of `clearContent` and `destroy` faster to execute.
+
+## v0.5.2
 
 ### toggle the display and tell me what
 The `toggleDisplay` now returns the status of the display.
 Also fixed a bug where passing an `undefined` variable will always toggle on.
 
 
-## V0.5.1
+## v0.5.1
 
 ### Pimp my style
 A new method `getComputedStyles` allows to retrieve multiple computed style properties in one call.
