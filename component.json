@@ -9,6 +9,7 @@
 	},
 	"scripts": [
 		"index.js",
-		"domEvents.js"
+		"domEvents.js",
+		"shim.js"
 	]
 }

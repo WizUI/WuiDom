@@ -5,6 +5,7 @@
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 var domEvents = require('./domEvents.js');
+require('./shim.js');
 
 var cType = {
 	EMPTY: null,
@@ -626,14 +627,34 @@ WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
 };
 
 
+WuiDom.prototype._removeDom = function () {
+	var elm = this.rootElement;
+	if (elm) {
+		// release DOM from the DOM tree
+		elm.remove();
+		// drop DOM references
+		this.rootElement = null;
+	}
+};
+
 /**
  * Destroy all children of a WuiDom
  * @private
  */
 WuiDom.prototype._destroyChildren = function () {
 	var children = this._childrenList.concat();
+	this._childrenList = [];
+	this._childrenMap = {};
+
 	for (var i = 0, len = children.length; i < len; i += 1) {
-		children[i].destroy();
+		var child = children[i];
+
+		child.emit('destroy');
+
+		child._parent = null;
+		child._destroyChildren();
+		child._removeDom();
+		child.removeAllListeners();
 	}
 };
 
@@ -664,28 +685,13 @@ WuiDom.prototype.destroy = function () {
 	this.emit('destroy');
 
 	// clean siblings
-
 	this._unsetParent();
 	this._destroyChildren();
 
 	// cleanup DOM tree
-
-	var elm = this.rootElement;
-
-	if (elm) {
-		// release DOM from parent element
-
-		if (elm.parentElement) {
-			elm.parentElement.removeChild(elm);
-		}
-
-		// drop DOM references
-
-		this.rootElement = null;
-	}
+	this._removeDom();
 
 	// drop any remaining event listeners
-
 	this.removeAllListeners();
 };
 

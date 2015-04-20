@@ -1,10 +1,18 @@
 # Release history
 
+## vNEXT
+
+### Kill them all, but fast
+Improvement has been made on the internal method `_destroyChildren` which should make
+the call of `clearContent` and `destroy` faster to execute.
+
+
 ## v0.5.3
 
 ### toggle with undefined style
 The `toggleClassNames` method was partially broken.
 When second arguments, `shouldAdd`, is `undefined` it will trigger a real toggle, which is now fixed.
+
 
 ## v0.5.2
 
