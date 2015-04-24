@@ -6,6 +6,11 @@
 Improvement has been made on the internal method `_destroyChildren` which should make
 the call of `clearContent` and `destroy` faster to execute.
 
+### Getting so classy
+Using now the API of `classList` from DOMTokenList for every class name operation.
+We are using a shim to make sure to be compatible with older browser.
+:warning: `toggleClassNames` is now deprecated in favor of `toggleClassName`
+
 
 ## v0.5.3
 
