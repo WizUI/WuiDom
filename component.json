@@ -5,11 +5,11 @@
 	"description": "Core Class for Wui Dom",
 	"dependencies": {
 		"Wizcorp/util": "0.1.0",
-		"Wizcorp/events": "0.1.2"
+		"Wizcorp/events": "0.1.2",
+		"micky2be/dom-shims": "0.1.5"
 	},
 	"scripts": [
 		"index.js",
-		"domEvents.js",
-		"shim.js"
+		"domEvents.js"
 	]
 }

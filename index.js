@@ -5,7 +5,7 @@
 var inherit = require('util').inherits;
 var EventEmitter = require('events').EventEmitter;
 var domEvents = require('./domEvents.js');
-require('./shim.js');
+require('dom-shims');
 
 var cType = {
 	EMPTY: null,
@@ -13,6 +13,12 @@ var cType = {
 	TEXT: 'text',
 	HTML: 'html'
 };
+
+var concat = Array.prototype.concat;
+function toArray(args) {
+	return concat.apply([], args).filter(Boolean);
+}
+
 
 /* jshint -W079 */
 var document = window.document;
@@ -43,7 +49,6 @@ function createHtmlElement(tagName, options) {
 				elm.setAttribute(key, options.attr[key]);
 			}
 		}
-
 	}
 
 	return elm;
@@ -344,7 +349,7 @@ WuiDom.prototype.getChild = function (childName) {
 WuiDom.prototype._clearLinearContent = function () {
 	this._text = null;
 	this._currentTextContent = null;
-	this.rootElement.innerHTML = "";
+	this.rootElement.innerHTML = '';
 };
 
 /**
@@ -390,7 +395,7 @@ WuiDom.prototype.setText = function (value) {
 	value = value.valueOf();
 
 	if (!this._text) {
-		this._text = document.createTextNode("");
+		this._text = document.createTextNode('');
 		this.rootElement.appendChild(this._text);
 	}
 
@@ -458,7 +463,7 @@ WuiDom.prototype.getComputedStyle = function (property) {
 };
 
 /**
- * @param {...string} css properties (javascript notation : background-image -> backgroundImage)
+ * @param {...string} arguments - css properties (javascript notation : background-image -> backgroundImage)
  * @returns {Object} - an object indexed by the css properties and their computed style as value.
  */
 WuiDom.prototype.getComputedStyles = function () {
@@ -478,70 +483,12 @@ WuiDom.prototype.getComputedStyles = function () {
 
 // className accessors
 
-function parseClassNames(str) {
-	return (str.indexOf(' ') === -1) ? [str] : str.trim().split(/\s+/);
-}
-
-
-function joinArgumentsAsClassNames(base, args) {
-	var str = base;
-
-	if (!str) {
-		str = args[0];
-	} else {
-		str += ' ' + args[0];
-	}
-
-	for (var i = 1, len = args.length; i < len; i += 1) {
-		str += ' ' + args[i];
-	}
-
-	return str;
-}
-
-
-function uniqueClassNames(str) {
-	var classNames = parseClassNames(str);
-	var classNameMap = {};
-
-	for (var i = 0, len = classNames.length; i < len; i += 1) {
-		classNameMap[classNames[i]] = null;
-	}
-
-	return Object.keys(classNameMap).join(' ');
-}
-
-/**
- * Removes the (unparsed) class names in args from `baseList`
- * `baseList` is required to be an array (not a string)
- * `args` is expected to be an arguments object or array
- * @param {string[]} baseList
- * @param {Object|string[]} args
- * @returns {string}
- * @private
- */
-function removeClassNames(baseList, args) {
-	for (var i = 0, len = args.length; i < len; i += 1) {
-		var parsed = parseClassNames(args[i]);
-
-		for (var j = 0, jlen = parsed.length; j < jlen; j += 1) {
-			var index = baseList.indexOf(parsed[j]);
-
-			if (index !== -1) {
-				baseList.splice(index, 1);
-			}
-		}
-	}
-
-	return baseList.join(' ');
-}
-
 /**
  * Returns an array of all class names
  * @returns {Array}
  */
 WuiDom.prototype.getClassNames = function () {
-	return parseClassNames(this.rootElement.className);
+	return toArray(this.rootElement.classList);
 };
 
 /**
@@ -550,29 +497,27 @@ WuiDom.prototype.getClassNames = function () {
  * @returns {boolean}
  */
 WuiDom.prototype.hasClassName = function (className) {
-	return this.getClassNames().indexOf(className) !== -1;
+	return this.rootElement.classList.contains(className);
 };
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...string} className
+ * @param {...string|..string[]} arguments - classNames
  */
-WuiDom.prototype.setClassNames = function (className) {
-	if (arguments.length > 1) {
-		className = joinArgumentsAsClassNames('', arguments);
-	}
-
-	this.rootElement.className = uniqueClassNames(className);
+WuiDom.prototype.setClassNames = function () {
+	this.rootElement.className = '';
+	var classList = this.rootElement.classList;
+	classList.add.apply(classList, toArray(arguments));
 };
 
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...string} classNames
+ * @param {...string|...string[]} arguments - classNames
  */
-WuiDom.prototype.addClassNames = function (classNames) {
-	classNames = joinArgumentsAsClassNames(this.rootElement.className, arguments);
-	this.rootElement.className = uniqueClassNames(classNames);
+WuiDom.prototype.addClassNames = function () {
+	var classList = this.rootElement.classList;
+	classList.add.apply(classList, toArray(arguments));
 };
 
 /**
@@ -581,52 +526,51 @@ WuiDom.prototype.addClassNames = function (classNames) {
  * @param {string[]} addList
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
-	// remove delList from the current
-	var classNames = removeClassNames(this.getClassNames(), delList);
-
-	// join the addList to the previous result
-	classNames = joinArgumentsAsClassNames(classNames, addList);
-
-	// make sure classes are unique
-	this.rootElement.className = uniqueClassNames(classNames);
+	var classList = this.rootElement.classList;
+	classList.remove.apply(classList, delList);
+	classList.add.apply(classList, addList);
 };
 
 /**
  * Allows for deleting multiples in separate arguments, space separated or a mix
- * @param {...string} classNames
+ * @param {...string|...string[]} arguments - classNames
  */
-WuiDom.prototype.delClassNames = function (classNames) {
-	classNames = removeClassNames(this.getClassNames(), arguments);
-	this.rootElement.className = classNames;
+WuiDom.prototype.delClassNames = function () {
+	var classList = this.rootElement.classList;
+	classList.remove.apply(classList, toArray(arguments));
 };
-
 
 /**
  * Toggle the presence of a list of classNames
  * Can enforce the addition or deletion with the second argument
  * @param {string[]} classNames
  * @param {Boolean} [shouldAdd]
+ * @deprecated
  */
 WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
-	if (shouldAdd !== undefined) {
-		classNames = joinArgumentsAsClassNames('', classNames);
-		if (shouldAdd) {
-			this.addClassNames(classNames);
-		} else {
-			this.delClassNames(classNames);
-		}
-		return;
+	for (var i = 0; i < classNames.length; i += 1) {
+		this.toggleClassName(classNames[i], shouldAdd);
 	}
-
-	var currents = this.getClassNames();
-	var addList = classNames.filter(function (className) {
-		return currents.indexOf(className) === -1;
-	});
-
-	this.replaceClassNames(classNames, addList);
 };
 
+/**
+ * Toggle the presence of a className
+ * Can enforce the addition or deletion with the second argument
+ * @param {string} className
+ * @param {Boolean} [shouldAdd]
+ */
+WuiDom.prototype.toggleClassName = function (className, shouldAdd) {
+	if (shouldAdd === true || shouldAdd === false) {
+		this.rootElement.classList.toggle(className, shouldAdd);
+	} else {
+		this.rootElement.classList.toggle(className);
+	}
+};
 
+/**
+ * Unassign the DOM object
+ * @private
+ */
 WuiDom.prototype._removeDom = function () {
 	var elm = this.rootElement;
 	if (elm) {

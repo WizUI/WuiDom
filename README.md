@@ -623,7 +623,7 @@ since WuiDom will take care of that for you.
 Calling the method:
 
 ```javascript
-childElement.addClassNames('long');
+childElement.addClassNames('long', 'red');
 ```
 
 #### hasClassName
@@ -649,16 +649,16 @@ childElement.delClassNames('big');
 ```
 
 
-#### toggleClassNames
+#### toggleClassName
 
-The toggleClassNames method will switch the presence of a the given list of class names.
-Can receive a boolean as second argument to force the switch and call respectively addClassNames or delClassNames.
+The toggleClassName method will switch the presence of a the given class name.
+Can receive a boolean as second argument to force the switch.
 
 Calling the method:
 
 ```javascript
 var isRead = someFunction();
-childElement.toggleClassNames(['read'], isRead);
+childElement.toggleClassName('read', isRead);
 ```
 
 #### replaceClassNames
