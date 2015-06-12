@@ -3,13 +3,16 @@
 	"repo": "wizui/wuidom",
 	"version": "0.5.3",
 	"description": "Core Class for WizUI",
+	"format": "cjs",
+	"registry": "npm",
 	"dependencies": {
-		"Wizcorp/util": "0.1.0",
-		"Wizcorp/events": "0.1.2",
-		"micky2be/dom-shims": "0.1.5"
+		"util": "0.10.3",
+		"events": "1.0.2",
+		"dom-shims": "0.1.4"
 	},
-	"scripts": [
+	"files": [
 		"index.js",
 		"domEvents.js"
-	]
+	],
+	"main" : "index.js"
 }
