@@ -561,9 +561,9 @@ WuiDom.prototype.toggleClassNames = function (classNames, shouldAdd) {
  */
 WuiDom.prototype.toggleClassName = function (className, shouldAdd) {
 	if (shouldAdd === true || shouldAdd === false) {
-		this.rootElement.classList.toggle(className, shouldAdd);
+		return this.rootElement.classList.toggle(className, shouldAdd);
 	} else {
-		this.rootElement.classList.toggle(className);
+		return this.rootElement.classList.toggle(className);
 	}
 };
 
