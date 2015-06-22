@@ -104,7 +104,9 @@ WuiDom.prototype._assign = function (tagName, options) {
 	}
 
 	// set identifier (used by getChild)
-	this._name = String(options.name);
+	if ('name' in options) {
+		this._name = String(options.name);
+	}
 
 	this.addClassNames(options.className);
 	this.setStyles(options.style || {});
@@ -328,7 +330,7 @@ WuiDom.prototype.getChildren = function () {
  * @returns {WuiDom|undefined}
  */
 WuiDom.prototype.getChild = function (childName) {
-	return this._childrenMap[String(childName)];
+	return this._childrenMap[childName];
 };
 
 /**
