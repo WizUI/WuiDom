@@ -33,21 +33,9 @@ var document = window.document;
 function createHtmlElement(tagName, options) {
 	var key, elm = document.createElement(tagName);
 
-	if (options) {
-		if (options.className) {
-			elm.className = options.className;
-		}
-
-		if (options.style) {
-			for (key in options.style) {
-				elm.style[key] = options.style[key];
-			}
-		}
-
-		if (options.attr) {
-			for (key in options.attr) {
-				elm.setAttribute(key, options.attr[key]);
-			}
+	if (options && options.attr) {
+		for (key in options.attr) {
+			elm.setAttribute(key, options.attr[key]);
 		}
 	}
 
@@ -67,7 +55,7 @@ function WuiDom(tagName, options) {
 	this._currentTextContent = null;
 	this.rootElement = null;
 	this._text = null;
-	this._name = '';
+	this._name = null;
 	this._childrenList = [];
 	this._childrenMap = {};
 	this._contentType = cType.EMPTY;
@@ -103,22 +91,23 @@ WuiDom.prototype._assign = function (tagName, options) {
 		}
 	} else if (tagName instanceof window.Element) {
 		// the first passed argument already is a real HTML Element
-
 		this.rootElement = tagName;
 	} else {
 		throw new Error('WuiDom.assign requires the given argument to be a DOM Element or tagName.');
 	}
 
-	if (options && options.name) {
-		this._name = options.name;
-	}
+	options = options || {};
 
-	if (options && options.hidden) {
-		// start hidden
+	// start hidden
+	if (options.hidden) {
 		this.hide();
 	}
 
-	return this.rootElement;
+	// set identifier (used by getChild)
+	this._name = String(options.name);
+
+	this.addClassNames(options.className);
+	this.setStyles(options.style || {});
 };
 
 /**
@@ -161,7 +150,7 @@ WuiDom.prototype.removeChild = function (child) {
 
 	this.rootElement.removeChild(child.rootElement);
 	this._childrenList.splice(siblingIndex, 1);
-	if (this._childrenMap.hasOwnProperty(child._name)) {
+	if (child._name in this._childrenMap) {
 		delete this._childrenMap[child._name];
 	}
 	child._parent = null;
@@ -339,7 +328,7 @@ WuiDom.prototype.getChildren = function () {
  * @returns {WuiDom|undefined}
  */
 WuiDom.prototype.getChild = function (childName) {
-	return this._childrenMap[childName];
+	return this._childrenMap[String(childName)];
 };
 
 /**
