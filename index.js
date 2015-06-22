@@ -108,8 +108,13 @@ WuiDom.prototype._assign = function (tagName, options) {
 		this._name = String(options.name);
 	}
 
-	this.addClassNames(options.className);
-	this.setStyles(options.style || {});
+	if ('className' in options) {
+		this.addClassNames(options.className);
+	}
+
+	if ('style' in options) {
+		this.setStyles(options.style || {});
+	}
 };
 
 /**
