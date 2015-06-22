@@ -1,6 +1,6 @@
 # Release history
 
-## vNEXT
+## v0.6.0
 
 ### Kill them all, but fast
 Improvement has been made on the internal method `_destroyChildren` which should make
