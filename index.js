@@ -157,7 +157,7 @@ WuiDom.prototype.removeChild = function (child) {
 
 	this.rootElement.removeChild(child.rootElement);
 	this._childrenList.splice(siblingIndex, 1);
-	if (child._name in this._childrenMap) {
+	if (this._childrenMap.hasOwnProperty(child._name)) {
 		delete this._childrenMap[child._name];
 	}
 	child._parent = null;
