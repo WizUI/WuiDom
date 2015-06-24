@@ -67,7 +67,7 @@ Each WuiDom object represents an HTML element.
 The constructor will tell the WuiDom element which HTML element it is representing.
 
 ```javascript
-var container = new WuiDom('div', { className: 'container' });
+var container = new WuiDom('div', { className: ['container', 'wide'] });
 ```
 
 You can also give an DOM element as first arguments.

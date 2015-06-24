@@ -75,6 +75,12 @@ module.exports = WuiDom;
  * The logic for HTML creation follows the rules of the private createHtmlElement function.
  * @param {string} tagName
  * @param {Object} [options]
+ * @param {Boolean} [options.hidden=false] - Allow to hide the DOM on creation
+ * @param {string} [options.name] - Set identifier to be found by it's parent (see #getChild)
+ * @param {Array} [options.className] - List of class name to set on the DOM
+ * @param {Object} [options.style] - CSS Style to apply to the DOM
+ * @param {String} [options.text] - Set a text in the DOM (see #setText)
+ * @param {Object} [options.attr] - Set the Html attribute of the DOM
  * @private
  */
 WuiDom.prototype._assign = function (tagName, options) {
@@ -523,8 +529,8 @@ WuiDom.prototype.addClassNames = function () {
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
 	var classList = this.rootElement.classList;
-	classList.remove.apply(classList, delList);
-	classList.add.apply(classList, addList);
+	classList.remove.apply(classList, toArray(delList));
+	classList.add.apply(classList, toArray(addList));
 };
 
 /**
