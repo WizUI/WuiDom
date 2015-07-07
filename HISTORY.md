@@ -1,5 +1,10 @@
 # Release history
 
+## v0.6.2
+
+### Dependencies update
+Updated `Wizcorp/events` to v0.1.3
+
 ## v0.6.1
 
 ### Let me replace your emptiness
