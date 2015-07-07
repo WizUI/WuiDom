@@ -1,7 +1,7 @@
 {
 	"name": "WuiDom",
 	"repo": "wizui/wuidom",
-	"version": "0.5.3",
+	"version": "0.6.2",
 	"description": "Core Class for WizUI",
 	"format": "cjs",
 	"registry": "npm",

@@ -1,11 +1,11 @@
 {
 	"name": "WuiDom",
 	"repo": "wizui/wuidom",
-	"version": "0.5.3",
+	"version": "0.6.2",
 	"description": "Core Class for WizUI",
 	"dependencies": {
 		"Wizcorp/util": "0.1.0",
-		"Wizcorp/events": "0.1.2",
+		"Wizcorp/events": "0.1.3",
 		"micky2be/dom-shims": "0.1.5"
 	},
 	"scripts": [

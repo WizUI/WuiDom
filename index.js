@@ -33,21 +33,9 @@ var document = window.document;
 function createHtmlElement(tagName, options) {
 	var key, elm = document.createElement(tagName);
 
-	if (options) {
-		if (options.className) {
-			elm.className = options.className;
-		}
-
-		if (options.style) {
-			for (key in options.style) {
-				elm.style[key] = options.style[key];
-			}
-		}
-
-		if (options.attr) {
-			for (key in options.attr) {
-				elm.setAttribute(key, options.attr[key]);
-			}
+	if (options && options.attr) {
+		for (key in options.attr) {
+			elm.setAttribute(key, options.attr[key]);
 		}
 	}
 
@@ -67,7 +55,7 @@ function WuiDom(tagName, options) {
 	this._currentTextContent = null;
 	this.rootElement = null;
 	this._text = null;
-	this._name = '';
+	this._name = null;
 	this._childrenList = [];
 	this._childrenMap = {};
 	this._contentType = cType.EMPTY;
@@ -87,6 +75,12 @@ module.exports = WuiDom;
  * The logic for HTML creation follows the rules of the private createHtmlElement function.
  * @param {string} tagName
  * @param {Object} [options]
+ * @param {Boolean} [options.hidden=false] - Allow to hide the DOM on creation
+ * @param {string} [options.name] - Set identifier to be found by it's parent (see #getChild)
+ * @param {Array} [options.className] - List of class name to set on the DOM
+ * @param {Object} [options.style] - CSS Style to apply to the DOM
+ * @param {String} [options.text] - Set a text in the DOM (see #setText)
+ * @param {Object} [options.attr] - Set the Html attribute of the DOM
  * @private
  */
 WuiDom.prototype._assign = function (tagName, options) {
@@ -103,22 +97,30 @@ WuiDom.prototype._assign = function (tagName, options) {
 		}
 	} else if (tagName instanceof window.Element) {
 		// the first passed argument already is a real HTML Element
-
 		this.rootElement = tagName;
 	} else {
 		throw new Error('WuiDom.assign requires the given argument to be a DOM Element or tagName.');
 	}
 
-	if (options && options.name) {
-		this._name = options.name;
-	}
+	options = options || {};
 
-	if (options && options.hidden) {
-		// start hidden
+	// start hidden
+	if (options.hidden) {
 		this.hide();
 	}
 
-	return this.rootElement;
+	// set identifier (used by getChild)
+	if ('name' in options) {
+		this._name = String(options.name);
+	}
+
+	if ('className' in options) {
+		this.addClassNames(options.className);
+	}
+
+	if ('style' in options) {
+		this.setStyles(options.style || {});
+	}
 };
 
 /**
@@ -527,8 +529,8 @@ WuiDom.prototype.addClassNames = function () {
  */
 WuiDom.prototype.replaceClassNames = function (delList, addList) {
 	var classList = this.rootElement.classList;
-	classList.remove.apply(classList, delList);
-	classList.add.apply(classList, addList);
+	classList.remove.apply(classList, toArray(delList));
+	classList.add.apply(classList, toArray(addList));
 };
 
 /**

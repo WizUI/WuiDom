@@ -1,6 +1,17 @@
 # Release history
 
-## vNEXT
+## v0.6.2
+
+### Dependencies update
+Updated `Wizcorp/events` to v0.1.3
+
+## v0.6.1
+
+### Let me replace your emptiness
+The method `replaceClassNames` allows having empty strings without crashing.
+
+
+## v0.6.0
 
 ### Kill them all, but fast
 Improvement has been made on the internal method `_destroyChildren` which should make
