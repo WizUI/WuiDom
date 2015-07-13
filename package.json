@@ -1,6 +1,6 @@
 {
-	"name": "WuiDom",
-	"description": "Core Class for WizUI",
+	"name": "wuidom",
+	"description": "WuiDom - Core Class for WizUI",
 	"keywords": [
 		"frontend",
 		"magical",
