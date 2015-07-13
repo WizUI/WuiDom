@@ -1,7 +1,7 @@
 {
 	"name": "WuiDom",
 	"repo": "wizui/wuidom",
-	"version": "0.6.2",
+	"version": "0.7.0",
 	"description": "Core Class for WizUI",
 	"dependencies": {
 		"Wizcorp/util": "0.1.0",
@@ -9,7 +9,8 @@
 		"micky2be/dom-shims": "0.1.5"
 	},
 	"scripts": [
-		"index.js",
-		"domEvents.js"
-	]
+		"src/index.js",
+		"src/domEvents.js"
+	],
+	"main": "src/index.js"
 }

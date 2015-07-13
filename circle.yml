@@ -1,0 +1,4 @@
+test:
+    override:
+        - node ./node_modules/.bin/jshint src
+        - node ./node_modules/.bin/jscs src

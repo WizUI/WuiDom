@@ -1,8 +1,18 @@
 {
 	"name": "WuiDom",
-	"repo": "wizui/wuidom",
-	"version": "0.6.2",
 	"description": "Core Class for WizUI",
+	"keywords": [
+		"frontend",
+		"magical",
+		"virtualdom"
+	],
+	"author": "Wizcorp <info@wizcorp>",
+	"maintainers": [
+		"Micky Brunetti (http://www.github.com/micky2be)"
+	],
+	"repository": "wizui/wuidom",
+	"homepage": "http://wizui.github.io/",
+	"version": "0.7.0",
 	"format": "cjs",
 	"registry": "npm",
 	"dependencies": {
@@ -10,9 +20,15 @@
 		"events": "1.0.2",
 		"dom-shims": "0.1.4"
 	},
+	"devDependencies": {
+		"jshint": "2.8.0",
+		"jscs": "1.13.1",
+		"jscs-jsdoc": "1.1.0"
+	},
 	"files": [
-		"index.js",
-		"domEvents.js"
+		"src/index.js",
+		"src/domEvents.js"
 	],
-	"main" : "index.js"
+	"main" : "src/index.js",
+	"license": "MIT"
 }

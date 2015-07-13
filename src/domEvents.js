@@ -3,7 +3,7 @@
  */
 /**
  * Mouse event lock timer. Set to 0 when not locked.
- * 
+ *
  * Note: This lock is required to overcome an issue with touch and mouse event compatibility across
  * browsers. The main issue being that when touch events are present the mouse events are fired
  * 300ms later. As such using just mouse events proves to be too slow on mobile devices. Further to
@@ -12,13 +12,13 @@
  * where the touch event fired. But rather so, it would fire on any element which ends up there
  * after the touch event is processed. This resulted in ghost clicks on links etc, that would appear
  * after the touch event.
- * 
+ *
  * References:
  *  - http://www.html5rocks.com/en/mobile/touchandmouse/
  *  - https://developers.google.com/mobile/articles/fast_buttons
  *  - https://github.com/Polymer/PointerEvents
  *  - http://blogs.msdn.com/b/davrous/archive/2013/02/20/handling-touch-in-your-html5-apps-thanks-to-the-pointer-events-of-ie10-and-windows-8.aspx
- * 
+ *
  * @type Number
  */
 var mouseLock = 0;
@@ -50,7 +50,7 @@ function clearMouseLock() {
 /**
  * Function which checks if a mouse event occured within the mouse lock threshold. If so it will
  * return true. Otherwise it will return false.
- * 
+ *
  * @returns {Boolean}
  */
 function isMouseLocked() {
@@ -70,7 +70,7 @@ var domEventPrefix = 'dom';
  * @param {String} evt
  */
 exports.new = function (evt) {
-	var that = this;
+	var self = this;
 
 	// Separate DOM event prefix from DOM event name
 	var evtNameParts = evt.split('.');
@@ -96,17 +96,17 @@ exports.new = function (evt) {
 				return;
 			}
 
-			that.emit('dom.touchstart', e);
+			self.emit('dom.touchstart', e);
 		};
 
 		var touchStartFn = function (e) {
 			updateMouseLock();
-			that.emit('dom.touchstart', e);
+			self.emit('dom.touchstart', e);
 		};
 
 		this.domListeners.touchstart = {
-			'mousedown': mouseDownFn,
-			'touchstart': touchStartFn
+			mousedown: mouseDownFn,
+			touchstart: touchStartFn
 		};
 
 		this.rootElement.addEventListener('mousedown', mouseDownFn);
@@ -120,16 +120,16 @@ exports.new = function (evt) {
 				return;
 			}
 
-			that.emit('dom.touchmove', e);
+			self.emit('dom.touchmove', e);
 		};
 
 		var touchMoveFn = function (e) {
-			that.emit('dom.touchmove', e);
+			self.emit('dom.touchmove', e);
 		};
 
 		this.domListeners.touchmove = {
-			'mousemove': mouseMoveFn,
-			'touchmove': touchMoveFn
+			mousemove: mouseMoveFn,
+			touchmove: touchMoveFn
 		};
 
 		this.rootElement.addEventListener('mousemove', mouseMoveFn);
@@ -144,14 +144,14 @@ exports.new = function (evt) {
 				return;
 			}
 
-			that.emit('dom.touchend', e);
+			self.emit('dom.touchend', e);
 		};
 
 		var touchEndFn = function (e) {
 			updateMouseLock();
-			that.emit('dom.touchend', e);
+			self.emit('dom.touchend', e);
 
-			// This prevents the firing of mouse events after a touchend. 
+			// This prevents the firing of mouse events after a touchend.
 			// This fixes the issue with iframes, where by if an iframe falls under your pointer
 			// after touchend is processed, but before the mouse events are, the mouse events are
 			// fired inside the iframe placing them out of scope. This prevents us from intervening.
@@ -159,8 +159,8 @@ exports.new = function (evt) {
 		};
 
 		this.domListeners.touchend = {
-			'mouseup': mouseUpFn,
-			'touchend': touchEndFn
+			mouseup: mouseUpFn,
+			touchend: touchEndFn
 		};
 
 		this.rootElement.addEventListener('mouseup', mouseUpFn);
@@ -169,7 +169,7 @@ exports.new = function (evt) {
 	default:
 		// Otherwise the default is to bind event as is
 		var defaultFn = function (e) {
-			that.emit(evt, e);
+			self.emit(evt, e);
 		};
 
 		this.domListeners[domEventName] = defaultFn;

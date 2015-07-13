@@ -1,52 +1,14 @@
 # WuiDom
-
-## Motivation for WUI
-
-Wizcorp UI (hereafter referred to as 'WUI') is a series of UI elements that were created to minimize
-programmer interaction with the DOM and eliminate the need for programmers to create HTML.
-Here at Wizcorp, we make single-page applications that often have many thousands of lines of
-generated HTML. Therefore, even a single DOM query can be very slow, resulting in an unacceptably
-slow user experience. WUI allows the programmer to create HTML elements while minimizing
-interaction with the DOM, and maintain fine-level control over exactly when, where and in what
-manner data is displayed and how events are handled.
-
-WUI also allows for simple interaction with Tomes, another Wizcorp API, to allow DOM elements to be
-updated whenever the underlying data associated with them changes. This is useful for such things as
-validation, real-time data display and for asynchronous processing. By fully leveraging the
-non-blocking nature of Node.js, WUI will perform nearly real-time updating of data and allow the
-programmer to avoid DOM calls, have more compact code and allow for more reusable user interface
-components.
+[![Circle CI](https://circleci.com/gh/WizUI/WuiDom/tree/master.svg?style=svg)](https://circleci.com/gh/WizUI/WuiDom/tree/master)
 
 ## What WuiDom is
 
-WuiDom is the base object of the WUI system. It represents the smallest unit of programmatic logic,
+WuiDom is the base object of the [WizUI] system. It represents the smallest unit of programmatic logic,
 an object corresponding to an underlying HTML element and that associated data (including, but not
 limited to, a Tome), events and other properties. WuiDom allows the programmer to keep a reference
 to generated elements (if desired) or to create throw-away elements. A simple function can create a
 generic UI template or create a custom view. Because WuiDom inherits from EventEmitter,
-programmer-defined events can be conditionally emitted and handled by WUI or other modules.
-
-## WUI Components
-
-One of the major goals of WUI, aside from reducing interaction with the DOM, is to enable developers
-to create re-usable user interface components, common behaviours and reusable views. When creating
-WUI components, please try to keep that goal in mind. The ideal WUI component can be used on many
-views and ideally that means to not making too many assumptions about the underlying data or the the
-business logic of the game.
-
-Below is a partial list of the existing WUI components, and what their primary functions are:
-
-### WuiButton
-
-You can read the WuiButton documentation [here](https://github.com/Wizcorp/wui-button).
-
-### WuiView
-
-You can read about the WuiView documentation [here](https://github.com/Wizcorp/wui-view).
-
-### WuiImage
-
-You can read more about the WuiImage documentation [here](https://github.com/Wizcorp/wui-image).
+programmer-defined events can be conditionally emitted and handled by [WizUI] or other modules.
 
 ### Creating a new WuiDom element
 
@@ -98,7 +60,7 @@ The result is a new child element is immediately inserted as the last child of p
 Please note that this method is the preferred way to create new WuiDom elements.
 
 The createChild method takes an HTML tag name (such as 'input', 'label', 'div' or so forth)
-and a list of associated options. WUI created an underlying rootElement (discussed at length below)
+and a list of associated options. [WizUI] created an underlying rootElement (discussed at length below)
 and appends the element as the last child element of the parent (caller) element.
 
 An options element can contain numerous keys that are used by WuiDom to create the HTML element.
@@ -116,9 +78,9 @@ In the above example, the code assumes parentElement already exists and is also 
 (see above for creating the first WuiDom object in your code!). Here we create an input tag
 (could just as easily be a 'div' or 'button'.)
 
-WUI reads the options object next, and creating a child text-node based on the user-supplied 'text'
+[WizUI] reads the options object next, and creating a child text-node based on the user-supplied 'text'
 option, in this case using 'Example' for the text. It then applies the style and class name.
-Finally, WUI will add each attribute specified by the keys in the 'attr' object. The resulting
+Finally, [WizUI] will add each attribute specified by the keys in the 'attr' object. The resulting
 HTML markup can be seen below:
 
 ```html
@@ -414,11 +376,11 @@ onchange, onclick and others.
 
 ##### allowDomEvents
 
-The allowDomEvents function can be called from any WuiDom element, in order to tell WUI that
+The allowDomEvents function can be called from any WuiDom element, in order to tell [WizUI] that
 the element will listen for DOM events. The correct syntax for DOM events is 'dom.event'.
 Therefore the change event would be emitted as 'dom.change'.
 
-Note that by default, DOM events are **not** propagated through WUI. **This method must be
+Note that by default, DOM events are **not** propagated through [WizUI]. **This method must be
 called in order to enable DOM events on a WuiDom object.**
 
 ##### Example
@@ -440,12 +402,12 @@ playerXPElement.on('dom.change', function() {
 ```
 
 In this example, we create a WuiDom element called playerXPElement.
-The function call to allowDomEvents tells WUI that the element that wants to consume DOM events.
+The function call to allowDomEvents tells [WizUI] that the element that wants to consume DOM events.
 In the final line, we tell the element to run the function every time the dom.change event is fired.
 
 When the method runs, it will check to see if the player has gained a level, and then
 possibly display an animation. If the player levels up, an event called levelUp is emitted.
-This is just one example of how events might be used with WUI. Please see [here][0] for a list of
+This is just one example of how events might be used with [WizUI]. Please see [here][0] for a list of
 DOM events.
 
 [0]: https://developer.mozilla.org/en-US/docs/DOM_Client_Object_Cross-Reference/DOM_Events
@@ -453,7 +415,7 @@ DOM events.
 ### Operations on a WuiDom element
 
 WuiDom supports a number of functions that can be used to interact with the underlying element,
-even after the element has already been added to the DOM. One primary purpose of WUI, is to allow
+even after the element has already been added to the DOM. One primary purpose of [WizUI], is to allow
 these operations to be performed without having to pay the cost of an inefficient DOM lookup every
 time we wish to run a command.
 
@@ -671,3 +633,5 @@ Calling the method:
 ```javascript
 childElement.replaceClassNames(['unread'], ['read', 'stroke']);
 ```
+
+[WizUI]: http://wizui.github.com "WizUI"

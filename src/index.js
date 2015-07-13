@@ -20,10 +20,6 @@ function toArray(args) {
 }
 
 
-/* jshint -W079 */
-var document = window.document;
-/* jshint +W079 */
-
 /**
  * HTML creation helper
  * @private
@@ -504,7 +500,7 @@ WuiDom.prototype.hasClassName = function (className) {
 
 /**
  * Allows for adding multiples in separate arguments, space separated or a mix
- * @param {...string|..string[]} arguments - classNames
+ * @param {...string|...string[]} arguments - classNames
  */
 WuiDom.prototype.setClassNames = function () {
 	this.rootElement.className = '';

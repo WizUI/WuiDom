@@ -1,5 +1,11 @@
 # Release history
 
+## v0.7.0
+
+### Let's meet the world
+WuiDom finally get released under WizUI and have its package.json file to reach even more build systems.
+
+
 ## v0.6.2
 
 ### Dependencies update
