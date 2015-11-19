@@ -1,5 +1,10 @@
 # Release history
 
+## v0.7.1
+### NPM Dependencies update
+Updated `events` to 1.1.0
+
+
 ## v0.7.0
 
 ### Let's meet the world

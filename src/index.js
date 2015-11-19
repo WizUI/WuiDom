@@ -232,7 +232,6 @@ WuiDom.prototype.appendChild = function (newChild) {
 	return newChild;
 };
 
-
 /**
  * Creates an instance of WuiDom and assigns a newly built HTML element to it,
  * following the logic of the private createHtmlElement function. It is then appended to

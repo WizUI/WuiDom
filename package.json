@@ -12,12 +12,12 @@
 	],
 	"repository": "wizui/wuidom",
 	"homepage": "http://wizui.github.io/",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"format": "cjs",
 	"registry": "npm",
 	"dependencies": {
 		"util": "0.10.3",
-		"events": "1.0.2",
+		"events": "1.1.0",
 		"dom-shims": "0.1.4"
 	},
 	"devDependencies": {
