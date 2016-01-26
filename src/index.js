@@ -332,6 +332,13 @@ WuiDom.prototype.getChildren = function () {
 };
 
 /**
+ * @returns {number} - Number of children attached to this WuiDom
+ */
+WuiDom.prototype.getChildCount = function () {
+	return this._childrenList.length;
+};
+
+/**
  * @param {string} childName
  * @returns {WuiDom|undefined}
  */
