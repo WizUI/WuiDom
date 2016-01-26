@@ -219,6 +219,18 @@ Calling the method:
 The method will return a copy of the children list.
 Using it can help to iterate through elements easily for specific task.
 
+#### getChildCount
+
+Calling the method:
+
+```javascript
+    var nbElements = myContainer.getChildCount();
+
+    myElement.setText('Elements in the list: ' + nbElements);
+```
+
+The method return a number. Faster than doing `myContainer.getChildren().length`.
+
 
 #### getWuiName
 

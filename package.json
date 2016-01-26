@@ -12,7 +12,7 @@
 	],
 	"repository": "wizui/wuidom",
 	"homepage": "http://wizui.github.io/",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"format": "cjs",
 	"registry": "npm",
 	"dependencies": {

@@ -1,5 +1,10 @@
 # Release history
 
+## v0.7.2
+### How many children do you have?
+The method `getChildCount` has been added to get the number of children a WuiDom may have.
+Simpler and faster than going through `getChildren().length`.
+
 ## v0.7.1
 ### NPM Dependencies update
 Updated `events` to 1.1.0
