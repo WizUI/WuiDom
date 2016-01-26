@@ -1,6 +1,8 @@
 # WuiDom
 [![Circle CI](https://circleci.com/gh/WizUI/WuiDom/tree/master.svg?style=svg)](https://circleci.com/gh/WizUI/WuiDom/tree/master)
 
+[![NPM](https://nodei.co/npm/wuidom.png?compact=true)](https://nodei.co/npm/wuidom/)
+
 ## What WuiDom is
 
 WuiDom is the base object of the [WizUI] system. It represents the smallest unit of programmatic logic,
